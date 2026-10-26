@@ -33,6 +33,13 @@ export async function GET() {
     supabase_url_ok: /^[a-z0-9]+\.supabase\.co$/.test(host),
     public_key: keyKind(SUPABASE_PUBLIC_KEY),
     secret_key: secret ? (secret.startsWith("sb_secret_") ? "secret key" : keyKind(secret)) : "missing",
+    supabase_url_has_extra_path: (() => {
+      try {
+        return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").pathname.replace(/\/+$/, "") !== "";
+      } catch {
+        return false;
+      }
+    })(),
     site_url: SITE_URL,
   };
   if (SUPABASE_URL && SUPABASE_PUBLIC_KEY) {
