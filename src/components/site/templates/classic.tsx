@@ -1,4 +1,4 @@
-import { Download, MapPin, FileText } from "lucide-react";
+import { ArrowDown, Download, MapPin, FileText } from "lucide-react";
 import { formatDateTime, formatMonth, formatRange, storageUrl } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { ProjectCard } from "../project-card";
 import { ContactForm } from "../contact-form";
 import { externalProps, type TemplateProps } from "../model";
 import { JsonLd } from "./shared";
+import { BackToTop, Reveal, RiseWords, ScrollProgress, SpotlightTracker, TimelineRail } from "../motion";
 
 function Section({
   id,
@@ -26,13 +27,16 @@ function Section({
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={cn("border-t border-line py-20 sm:py-28", className)}>
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="mb-10 max-w-2xl sm:mb-14">
-          <h2 id={`${id}-title`} className="text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[2rem]">
+        <Reveal className="mb-10 max-w-2xl sm:mb-14">
+          <h2 id={`${id}-title`} className="flex items-center gap-3 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[2rem]">
+            <span aria-hidden className="h-[0.9em] w-1 rounded-full bg-accent" />
             {title}
           </h2>
           {intro && <p className="mt-3 text-[17px] leading-relaxed text-muted">{intro}</p>}
-        </div>
-        {children}
+        </Reveal>
+        <Reveal variant="fade" delay={80}>
+          {children}
+        </Reveal>
       </div>
     </section>
   );
@@ -68,14 +72,17 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
       >
         Skip to content
       </a>
+      <ScrollProgress />
+      <SpotlightTracker />
       <SiteHeader name={profile.short_name || profile.full_name} nav={nav} allowToggle={theme.allow_toggle} banner={previewBanner} />
 
       <main id="main">
         {/* Hero */}
-        <section aria-label="Introduction" className="mx-auto max-w-6xl px-5 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-24">
-          <div className="grid items-start gap-14 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-20">
+        <section aria-label="Introduction" className="relative">
+          <div aria-hidden className="blueprint pointer-events-none absolute inset-0 -top-16" />
+          <div className="relative mx-auto grid max-w-6xl items-start gap-14 px-5 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-20">
             <div>
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="rise-b flex flex-wrap items-center gap-4" style={{ "--d": 0 } as React.CSSProperties}>
                 {photo && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -97,28 +104,33 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                 )}
               </div>
               <h1 className="mt-8 text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.035em] text-ink sm:text-[3.5rem] lg:text-[4rem]">
-                {profile.full_name}
+                <RiseWords text={profile.full_name} start={120} />
               </h1>
               {profile.title && (
-                <p className="mt-4 text-xl text-muted sm:text-2xl">
+                <p className="rise-b mt-4 text-xl text-muted sm:text-2xl" style={{ "--d": 450 } as React.CSSProperties}>
                   {profile.title}
                   {profile.location && <span>, {profile.location}</span>}
                 </p>
               )}
               {profile.headline && (
-                <p className="mt-8 max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[1.625rem]">
+                <p className="rise-b mt-8 max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[1.625rem]" style={{ "--d": 560 } as React.CSSProperties}>
                   {profile.headline}
                 </p>
               )}
-              {profile.intro && <p className="prose-measure mt-5 text-[17px] leading-relaxed text-ink-2">{profile.intro}</p>}
-              <div className="mt-10 flex flex-wrap gap-3">
+              {profile.intro && (
+                <p className="rise-b prose-measure mt-5 text-[17px] leading-relaxed text-ink-2" style={{ "--d": 660 } as React.CSSProperties}>
+                  {profile.intro}
+                </p>
+              )}
+              <div className="rise-b mt-10 flex flex-wrap gap-3" style={{ "--d": 760 } as React.CSSProperties}>
                 {show.projects && (
-                  <a href="#projects" className={buttonVariants({ variant: "primary", size: "lg" })}>
+                  <a href="#projects" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "press group/cta")}>
                     View my projects
+                    <ArrowDown className="transition-transform duration-300 group-hover/cta:translate-y-0.5" aria-hidden />
                   </a>
                 )}
                 {hasResume && (
-                  <a href={`${resumeHref}?download=1`} className={buttonVariants({ variant: "outline", size: "lg" })}>
+                  <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
                     <Download aria-hidden />
                     Download resume
                   </a>
@@ -130,7 +142,9 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                 )}
               </div>
             </div>
-            <DeliveryFlow steps={profile.process_steps} />
+            <div className="rise-b" style={{ "--d": 300 } as React.CSSProperties}>
+              <DeliveryFlow steps={profile.process_steps} />
+            </div>
           </div>
         </section>
 
@@ -164,7 +178,8 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.experience && (
           <Section id="experience" title="Experience">
-            <ol className="md:space-y-14">
+            <ol className="relative md:space-y-14">
+              <TimelineRail className="left-0 md:left-[15.5rem]" />
               {experiences.map((e) => (
                 <ExperienceItem key={e.id} e={e} />
               ))}
@@ -179,8 +194,10 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
             intro="Selected work from my role, internships and studies. Open a project to see exactly what I was responsible for."
           >
             <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
-              {projects.map((p) => (
-                <ProjectCard key={p.id} p={p} />
+              {projects.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 2) * 120}>
+                  <ProjectCard p={p} />
+                </Reveal>
               ))}
             </div>
           </Section>
@@ -189,19 +206,19 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         {show.skills && (
           <Section id="skills" title="Skills">
             <dl className="grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-              {skill_groups.map((g) => (
-                <div key={g.id} className="border-t border-line pt-5">
+              {skill_groups.map((g, gi) => (
+                <Reveal key={g.id} delay={(gi % 3) * 90} className="border-t border-line pt-5">
                   <dt className="text-sm font-semibold text-ink">{g.name}</dt>
                   <dd className="mt-3">
                     <ul className="flex flex-wrap gap-1.5">
                       {g.items.map((s) => (
-                        <li key={s} className="rounded-md border border-line bg-surface px-2.5 py-1 text-[13px] text-ink-2">
+                        <li key={s} className="rounded-md border border-line bg-surface px-2.5 py-1 text-[13px] text-ink-2 transition-colors duration-200 hover:border-[color-mix(in_oklab,var(--accent)_45%,var(--line))] hover:text-ink">
                           {s}
                         </li>
                       ))}
                     </ul>
                   </dd>
-                </div>
+                </Reveal>
               ))}
             </dl>
           </Section>
@@ -311,6 +328,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         </div>
       </footer>
 
+      <BackToTop />
       <JsonLd data={model.personLd} />
     </div>
   );

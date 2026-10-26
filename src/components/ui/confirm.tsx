@@ -22,7 +22,7 @@ export function Confirm({
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <AlertDialog.Overlay data-overlay className="fixed inset-0 z-50 bg-black/40" />
         <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-6 shadow-2xl">
           <AlertDialog.Title className="text-lg font-semibold">{title}</AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm leading-relaxed text-muted">

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { useActiveSection } from "./active-section";
 import { cn } from "@/lib/utils";
 
 export type NavItem = { id: string; label: string };
@@ -19,6 +20,7 @@ export function SiteHeader({
 }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const active = useActiveSection(nav.map((n) => n.id));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -51,7 +53,11 @@ export function SiteHeader({
             <a
               key={n.id}
               href={`#${n.id}`}
-              className="rounded-full px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink"
+              aria-current={active === n.id && scrolled ? "location" : undefined}
+              className={cn(
+                "relative rounded-full px-3 py-1.5 text-sm transition-colors hover:text-ink",
+                active === n.id && scrolled ? "bg-sunken text-ink" : "text-muted",
+              )}
             >
               {n.label}
             </a>

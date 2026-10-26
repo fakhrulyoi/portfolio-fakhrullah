@@ -11,13 +11,16 @@ export function ExperienceItem({ e }: { e: Experience }) {
   const items = open ? e.highlights : e.highlights.slice(0, PREVIEW);
   const meta = [e.employment_type, e.work_mode, e.location].filter(Boolean).join(", ");
   return (
-    <li className="relative grid gap-2 border-l border-line pb-12 pl-6 last:pb-0 md:grid-cols-[13rem_1fr] md:gap-10 md:border-l-0 md:pl-0">
-      <span aria-hidden className="absolute -left-[5px] top-1.5 size-[9px] rounded-full border-2 border-paper bg-line-strong md:hidden" />
+    <li className="relative grid gap-2 pb-12 pl-7 last:pb-0 md:grid-cols-[13rem_1fr] md:gap-10 md:pl-0">
+      <span
+        aria-hidden
+        className="timeline-dot absolute left-[-5px] top-1.5 z-10 size-[11px] rounded-full border-2 border-line-strong bg-paper md:left-[calc(15.5rem-5px)]"
+      />
       <div className="md:pt-0.5">
         <p className="text-sm tabular-nums text-muted">{formatRange(e.start_date, e.end_date, e.is_current)}</p>
         {meta && <p className="mt-1 text-sm text-muted">{meta}</p>}
       </div>
-      <div className="md:border-l md:border-line md:pl-10">
+      <div className="md:pl-10">
         <h3 className="text-lg font-semibold tracking-tight text-ink">
           {e.role}
           <span className="font-normal text-muted">, {e.company}</span>

@@ -8,6 +8,7 @@ import { ContactForm } from "../contact-form";
 import { externalProps, type SectionId, type TemplateProps } from "../model";
 import { DocToc, PrintButton, type TocItem } from "./document-parts";
 import { Availability, JsonLd, SkipLink } from "./shared";
+import { BackToTop, Reveal, ScrollProgress } from "../motion";
 
 const TITLES: Record<SectionId, string> = {
   about: "Summary",
@@ -22,11 +23,13 @@ const TITLES: Record<SectionId, string> = {
 function DocSection({ id, num, title, children }: { id: string; num: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 border-t border-line pt-10 print:break-inside-auto">
-      <h2 id={`${id}-title`} className="font-doc flex items-baseline gap-4 text-[1.75rem] font-medium leading-tight tracking-[-0.01em] text-ink">
+      <h2 id={`${id}-title`} data-doc-h className="font-doc flex items-baseline gap-4 text-[1.75rem] font-medium leading-tight tracking-[-0.01em] text-ink">
         <span className="font-sans text-base font-medium tabular-nums text-accent-ink">{num}</span>
         {title}
       </h2>
-      <div className="mt-7">{children}</div>
+      <Reveal variant="fade" className="mt-7">
+        {children}
+      </Reveal>
     </section>
   );
 }
@@ -61,6 +64,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
   return (
     <div id="top" className="min-h-dvh bg-sunken text-ink print:bg-white">
       <SkipLink />
+      <ScrollProgress />
       <header className="sticky top-0 z-40 border-b border-line bg-sunken/90 backdrop-blur print:hidden">
         {previewBanner}
         <div className="mx-auto flex h-14 max-w-[76rem] items-center justify-between gap-4 px-4 sm:px-6">
@@ -81,7 +85,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
 
         <main
           id="main"
-          className="mx-auto w-full max-w-[52rem] border-line bg-surface px-5 py-10 sm:rounded-md sm:border sm:px-12 sm:py-14 sm:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_-12px_rgba(0,0,0,0.08)] lg:px-16 print:max-w-none print:border-0 print:p-0 print:shadow-none"
+          className="rise-b mx-auto w-full max-w-[52rem] border-line bg-surface px-5 py-10 sm:rounded-md sm:border sm:px-12 sm:py-14 sm:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_-12px_rgba(0,0,0,0.08)] lg:px-16 print:max-w-none print:border-0 print:p-0 print:shadow-none"
         >
           {/* Cover */}
           <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
@@ -100,7 +104,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
             )}
           </div>
 
-          <h1 className="font-doc mt-10 text-[2.5rem] font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-[3.25rem]">
+          <h1 className="rise-b font-doc mt-10 text-[2.5rem] font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-[3.25rem]">
             {profile.full_name}
           </h1>
           {profile.headline && <p className="font-doc mt-5 text-[1.375rem] leading-snug text-ink">{profile.headline}</p>}
@@ -423,6 +427,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
           </footer>
         </main>
       </div>
+      <BackToTop />
       <JsonLd data={model.personLd} />
     </div>
   );

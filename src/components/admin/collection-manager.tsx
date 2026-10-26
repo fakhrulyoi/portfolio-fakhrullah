@@ -99,7 +99,7 @@ export function CollectionManager({ collection, items: initialItems }: { collect
           {items.map((it, i) => {
             const d = describe(it);
             return (
-              <li key={it.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap">
+              <li key={it.id} className="flex flex-wrap items-center gap-3 px-4 py-3 transition-colors hover:bg-sunken/40 sm:flex-nowrap">
                 <div className="flex shrink-0 flex-col">
                   <button type="button" className="rounded p-0.5 text-muted hover:text-ink disabled:opacity-30" aria-label={`Move ${d.title} up`} disabled={i === 0 || pending} onClick={() => move(i, -1)}>
                     <ArrowUp className="size-4" />

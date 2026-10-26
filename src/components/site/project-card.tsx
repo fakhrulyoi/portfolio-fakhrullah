@@ -1,5 +1,5 @@
 "use client";
-import { Award, ExternalLink, FileText, Lock } from "lucide-react";
+import { ArrowUpRight, Award, ExternalLink, FileText, Lock } from "lucide-react";
 import { GithubIcon } from "@/components/brand-icons";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ProjectVisual } from "./project-visual";
@@ -41,10 +41,10 @@ function Visual({ p, className }: { p: Project; className?: string }) {
           alt={p.image_alt || `Screenshot of ${p.title}`}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-cover object-top"
+          className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
         />
       ) : (
-        <div className="h-full w-full p-4">
+        <div className="h-full w-full p-4 transition-transform duration-700 ease-out group-hover:scale-[1.03]">
           <ProjectVisual kind={p.visual} />
         </div>
       )}
@@ -69,7 +69,10 @@ export function ProjectCard({ p }: { p: Project }) {
   const meta = [p.category, p.year].filter(Boolean).join(", ");
   return (
     <Dialog>
-      <article className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-line-strong">
+      <article
+        data-spotlight
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.25)]"
+      >
         <DialogTrigger className="block w-full text-left" aria-label={`Open details for ${p.title}`}>
           <Visual p={p} className="aspect-[5/3] border-b border-line transition-transform" />
         </DialogTrigger>
@@ -91,8 +94,9 @@ export function ProjectCard({ p }: { p: Project }) {
             <Tech items={p.tech} />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Links p={p} />
-              <DialogTrigger className="text-sm font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
+              <DialogTrigger className="group/btn inline-flex items-center gap-1 text-sm font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
                 Role and contributions
+                <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" aria-hidden />
               </DialogTrigger>
             </div>
           </div>

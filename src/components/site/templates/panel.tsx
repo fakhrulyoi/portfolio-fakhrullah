@@ -9,18 +9,21 @@ import { ProjectCard } from "../project-card";
 import { externalProps, type TemplateProps } from "../model";
 import { PanelNav } from "./panel-parts";
 import { Availability, JsonLd, SkipLink } from "./shared";
+import { BackToTop, Reveal, RiseWords, ScrollProgress, SpotlightTracker, TimelineRail } from "../motion";
 
 function Block({ id, title, intro, children }: { id: string; title: string; intro?: string; children: React.ReactNode }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-20 py-14 first:pt-0 sm:py-16">
-      <div className="mb-8 flex items-center gap-4">
+      <Reveal className="mb-8 flex items-center gap-4">
         <h2 id={`${id}-title`} className="text-[1.5rem] font-semibold tracking-[-0.02em]">
           {title}
         </h2>
         <span aria-hidden className="h-px flex-1 bg-line" />
-      </div>
+      </Reveal>
       {intro && <p className="-mt-4 mb-8 max-w-2xl text-[15px] leading-relaxed text-muted">{intro}</p>}
-      {children}
+      <Reveal variant="fade" delay={80}>
+        {children}
+      </Reveal>
     </section>
   );
 }
@@ -93,11 +96,13 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
   return (
     <div id="top" className="min-h-dvh bg-paper text-ink">
       <SkipLink />
+      <ScrollProgress />
+      <SpotlightTracker />
       {previewBanner && <div className="relative z-50">{previewBanner}</div>}
       <div className="lg:grid lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Panel (fixed dark surface in both themes) */}
         <aside className="bg-[#15171c] text-white lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r lg:border-white/5">
-          <div className="flex h-full flex-col px-5 py-8 sm:px-8 lg:px-8 lg:py-10">
+          <div className="rise-b flex h-full flex-col px-5 py-8 sm:px-8 lg:px-8 lg:py-10">
             {identity}
             <div className="mt-10 hidden lg:block">
               <PanelNav items={nav} variant="side" />
@@ -123,13 +128,19 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
             {/* Intro */}
             <section aria-label="Introduction" className="pb-14">
               {profile.headline && (
-                <p className="max-w-3xl text-[1.75rem] font-semibold leading-[1.2] tracking-[-0.025em] sm:text-[2.25rem]">{profile.headline}</p>
+                <p className="max-w-3xl text-[1.75rem] font-semibold leading-[1.2] tracking-[-0.025em] sm:text-[2.25rem]">
+                  <RiseWords text={profile.headline} start={150} step={45} />
+                </p>
               )}
-              {profile.intro && <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2">{profile.intro}</p>}
+              {profile.intro && (
+                <p className="rise-b mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2" style={{ "--d": 650 } as React.CSSProperties}>
+                  {profile.intro}
+                </p>
+              )}
               {profile.process_steps.length > 0 && (
                 <ol aria-label="How I work" className="mt-10 flex flex-wrap items-center gap-2 text-[13px]">
                   {profile.process_steps.map((s, i) => (
-                    <li key={i} className="flex items-center">
+                    <li key={i} className="rise-b flex items-center" style={{ "--d": 800 + i * 90 } as React.CSSProperties}>
                       <span className="rounded-full border border-line bg-surface px-3 py-1.5 font-medium text-ink-2">
                         <span className="mr-1.5 tabular-nums text-accent-ink">{i + 1}</span>
                         {s}
@@ -198,7 +209,8 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
 
               {show.experience && (
                 <Block id="experience" title="Experience">
-                  <ol className="md:space-y-12">
+                  <ol className="relative md:space-y-12">
+                    <TimelineRail className="left-0 md:left-[15.5rem]" />
                     {experiences.map((e) => (
                       <ExperienceItem key={e.id} e={e} />
                     ))}
@@ -303,6 +315,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
           </div>
         </main>
       </div>
+      <BackToTop />
       <JsonLd data={model.personLd} />
     </div>
   );
