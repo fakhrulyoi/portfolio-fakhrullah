@@ -50,6 +50,10 @@ export async function signIn(_: unknown, formData: FormData): Promise<ActionResu
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+  if (error?.code === "email_not_confirmed") {
+    return { ok: false, error: "This account's email isn't confirmed yet. Confirm it in Supabase (Authentication > Users) and try again." };
+  }
+  if (error?.status === 429) return { ok: false, error: "Too many sign-in attempts. Wait a few minutes and try again." };
   if (error || !data.user) return { ok: false, error: "Email or password is incorrect." };
 
   const { data: adminRow } = await supabase.from("admins").select("user_id").eq("user_id", data.user.id).maybeSingle();
