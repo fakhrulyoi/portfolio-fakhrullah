@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #f7f7f5;
+  --surface: #ffffff;
+  --sunken: #efefec;
+  --ink: #18181b;
+  --ink-2: #3f3f46;
+  --muted: #6b6b72;
+  --line: #e3e3df;
+  --line-strong: #cfcfc9;
+  --accent: #2450d8;
+  --accent-fg: #ffffff;
+  --accent-ink: var(--accent);
+  --danger: #b42318;
+  --success: #067647;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #131315;
+  --surface: #1b1b1e;
+  --sunken: #0e0e10;
+  --ink: #ededea;
+  --ink-2: #c9c9c6;
+  --muted: #9d9da4;
+  --line: #2b2b2f;
+  --line-strong: #3a3a3f;
+  --accent-ink: color-mix(in oklab, var(--accent) 62%, white);
+  --danger: #f97066;
+  --success: #47cd89;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The one orchestrated motion moment: a signal travelling down the
+   delivery flow in the hero, once, after load. */
+@keyframes signal {
+  0% { transform: translateY(0); opacity: 0; }
+  6% { opacity: 1; }
+  94% { opacity: 1; }
+  100% { transform: translateY(var(--travel, 300px)); opacity: 0; }
+}
+@keyframes node-on {
+  from { background: var(--surface); border-color: var(--line-strong); }
+  to { background: var(--accent); border-color: var(--accent); }
+}
+.flow-signal {
+  animation: signal 2.4s cubic-bezier(0.45, 0, 0.25, 1) 0.4s 1 both;
+}
+.flow-node {
+  animation: node-on 0.3s ease-out both;
+  animation-delay: calc(0.4s + var(--i) * (2.4s / var(--n)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .flow-signal { animation: none; opacity: 0; }
+  .flow-node { animation: none; background: var(--accent); border-color: var(--accent); }
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+
+.prose-measure { max-width: 68ch; }
+
+/* Accent set from the dashboard is applied on a wrapper; re-derive the
+   readable accent tone at that level so dark mode stays legible. */
+.accent-scope { --accent-ink: var(--accent); }
+.dark .accent-scope { --accent-ink: color-mix(in oklab, var(--accent) 62%, white); }
