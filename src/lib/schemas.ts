@@ -111,6 +111,26 @@ export const contactSettingsSchema = z.object({
   form_enabled: z.boolean(),
 });
 
+export const atsSchema = z.object({
+  target_title: text(120),
+  summary: text(1500),
+  skills: list(60, 80),
+  certifications: list(12, 200),
+  max_bullets: z.enum(["all", "6", "4", "3"]),
+  show_phone: z.boolean(),
+  show_location: z.boolean(),
+  show_links: z.boolean(),
+  include_projects: z.boolean(),
+  include_languages: z.boolean(),
+  include_activities: z.boolean(),
+  excluded: z.array(z.uuid()).max(300),
+  file_name: z
+    .string()
+    .trim()
+    .max(80)
+    .refine((v) => v === "" || /^[\w\- .]+$/.test(v), "Use letters, numbers, spaces, - and _ only"),
+});
+
 export const settingsSectionSchemas = {
   profile: profileSchema,
   about: aboutSchema,
@@ -119,6 +139,7 @@ export const settingsSectionSchemas = {
   theme: themeSchema,
   sections: sectionsSchema,
   contact: contactSettingsSchema,
+  ats: atsSchema,
 } as const;
 
 export type Settings = { [K in keyof typeof settingsSectionSchemas]: z.output<(typeof settingsSectionSchemas)[K]> };
@@ -149,6 +170,21 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: { template: "classic", accent: "#2450D8", default_mode: "light", allow_toggle: true },
   sections: { about: true, experience: true, projects: true, skills: true, education: true, resume: true, contact: true },
   contact: { intro: "", form_enabled: true },
+  ats: {
+    target_title: "",
+    summary: "",
+    skills: [],
+    certifications: [],
+    max_bullets: "all",
+    show_phone: true,
+    show_location: true,
+    show_links: true,
+    include_projects: true,
+    include_languages: true,
+    include_activities: false,
+    excluded: [],
+    file_name: "",
+  },
 };
 
 /** Fill any missing keys (e.g. after adding a new setting) with defaults. */

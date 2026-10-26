@@ -96,11 +96,13 @@ Each person gets their own copy: their own GitHub repo, Supabase project and Ver
 | Edit education | **Education** |
 | Replace the resume PDF | **Resume** → *Replace resume* |
 | Change SEO title, sharing image, accent colour, dark mode, sections | **Site settings** |
+| Make a tailored, ATS-friendly resume (PDF / Word / text) | **ATS resume** |
 | Read contact form messages | **Messages** |
 | Change password | **Account** |
 
 Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**. Nothing changes on the live site until you publish. The top bar shows "Unpublished changes" until you do.
 
+- **ATS resume**: builds a one-column resume from your portfolio content (standard headings, real text, Helvetica/Calibri, no tables or images). Change the target title and summary, pick which jobs/projects to include, paste a job ad to see which of its key terms you already use, then **Download PDF** or **Download Word**. **Use on my website** replaces the resume visitors download (publish to make it live). Saving these settings counts as a draft change, so the top bar will show "Unpublished changes" — publishing is harmless.
 - **Hide vs delete**: the switch hides an item but keeps it in your draft; the bin deletes it (with confirmation).
 - **Resume link**: `https://YOUR-SITE/resume` always opens the latest *published* PDF — use it in emails and job applications.
 - **Profile photo**: Profile & home → *Upload image* (resized automatically) → Save draft → Publish. Turn "Show photo" off to hide it.

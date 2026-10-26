@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Briefcase, FileText, FolderKanban, GraduationCap, Home, Inbox, KeyRound, LayoutGrid, Menu, Settings, User, UserRound, X, ExternalLink, LogOut } from "lucide-react";
+import { Briefcase, FileText, FileCheck2, FolderKanban, GraduationCap, Home, Inbox, KeyRound, LayoutGrid, Menu, Settings, User, UserRound, X, ExternalLink, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/skills", label: "Skills", icon: LayoutGrid },
   { href: "/admin/education", label: "Education", icon: GraduationCap },
   { href: "/admin/resume", label: "Resume", icon: FileText },
+  { href: "/admin/ats-resume", label: "ATS resume", icon: FileCheck2 },
   { href: "/admin/messages", label: "Messages", icon: Inbox },
   { href: "/admin/settings", label: "Site settings", icon: Settings },
   { href: "/admin/account", label: "Account", icon: KeyRound },

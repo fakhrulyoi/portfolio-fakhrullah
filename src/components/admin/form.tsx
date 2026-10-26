@@ -18,6 +18,7 @@ export type Field =
   | (Base & { type: "toggle" })
   | (Base & { type: "select"; options: { value: string; label: string }[] })
   | (Base & { type: "color" })
+  | (Base & { type: "include"; options: { value: string; label: string; group: string }[] })
   | (Base & { type: "choice"; options: { value: string; label: string; description?: string }[]; thumbs?: boolean })
   | (Base & { type: "list"; itemLabel: string; multiline?: boolean; maxLength?: number })
   | (Base & { type: "tags"; placeholder?: string })
@@ -303,6 +304,37 @@ export function FieldControl({ field, values, setValue, errors }: { field: Exclu
         </div>
       );
       break;
+    case "include": {
+      const excluded: string[] = Array.isArray(v) ? v : [];
+      const groups = [...new Set(field.options.map((o) => o.group))];
+      control = (
+        <div className="space-y-4 rounded-xl border border-line bg-surface p-4">
+          {groups.map((g) => (
+            <fieldset key={g}>
+              <legend className="mb-2 text-[13px] font-medium text-muted">{g}</legend>
+              <div className="space-y-1.5">
+                {field.options
+                  .filter((o) => o.group === g)
+                  .map((o) => (
+                    <label key={o.value} className="flex cursor-pointer items-start gap-2.5 text-sm">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 size-4 accent-[var(--accent)]"
+                        checked={!excluded.includes(o.value)}
+                        onChange={(e) =>
+                          setValue(field.name, e.target.checked ? excluded.filter((x) => x !== o.value) : [...excluded, o.value])
+                        }
+                      />
+                      {o.label}
+                    </label>
+                  ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      );
+      break;
+    }
     case "choice":
       control = (
         <div role="radiogroup" aria-labelledby={`${id}-label`} className="grid gap-3 sm:grid-cols-3">
@@ -353,10 +385,10 @@ export function FieldControl({ field, values, setValue, errors }: { field: Exclu
         />
       );
   }
-  const fullWidth = !field.half || ["list", "links", "textarea", "image", "tags", "choice"].includes(field.type);
+  const fullWidth = !field.half || ["list", "links", "textarea", "image", "tags", "choice", "include"].includes(field.type);
   return (
     <div className={cn("space-y-1.5", fullWidth && "sm:col-span-2")}>
-      <Label id={`${id}-label`} htmlFor={["list", "links"].includes(field.type) ? undefined : id}>
+      <Label id={`${id}-label`} htmlFor={["list", "links", "include", "choice"].includes(field.type) ? undefined : id}>
         {field.label}
         {"required" in field && field.required && <span className="text-danger"> *</span>}
       </Label>
@@ -378,6 +410,7 @@ export function AdminForm({
   stickyFooter = true,
   allowPristine = false,
   inDialog = false,
+  onValuesChange,
 }: {
   fields: Field[];
   initial: Values;
@@ -388,6 +421,7 @@ export function AdminForm({
   stickyFooter?: boolean;
   allowPristine?: boolean;
   inDialog?: boolean;
+  onValuesChange?: (values: Values) => void;
 }) {
   const [values, setValues] = useState<Values>(initial);
   const [saved, setSaved] = useState<string>(() => JSON.stringify(initial));
@@ -403,6 +437,10 @@ export function AdminForm({
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
+
+  useEffect(() => {
+    onValuesChange?.(values);
+  }, [values, onValuesChange]);
 
   const setValue = (name: string, v: unknown) => setValues((prev) => setPath(prev, name, v));
 

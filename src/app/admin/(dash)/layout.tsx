@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="sticky top-0 z-30 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur sm:px-8">
           <PublishBar hasChanges={hasChanges} lastPublished={state?.last_published_at ?? null} />
         </div>
-        <main className="mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-10">{children}</main>
+        <main className="mx-auto max-w-4xl px-4 py-8 has-[[data-wide]]:max-w-7xl sm:px-8 sm:py-10">{children}</main>
       </div>
     </div>
   );
