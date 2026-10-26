@@ -19,7 +19,7 @@ update public.site_settings set data = $json$
     "photo_path": "",
     "show_photo": true,
     "email": "yoifakrul@gmail.com",
-    "phone": "014-2153722",
+    "phone": "",
     "show_phone": false,
     "linkedin_url": "",
     "github_url": "",

@@ -65,7 +65,26 @@ Open `https://YOUR-SITE/admin`, sign in, then work through the **Finish your pro
 
 ---
 
-## 2. Updating the portfolio (no code)
+## 2. Templates
+
+Three layouts use the same content. Switch in **Site settings → Appearance → Template**, check with **Preview**, then **Publish**.
+
+| Template | Best for |
+| --- | --- |
+| **Classic** | Open layout with a process diagram in the hero and project cards. |
+| **Document** | Specification-style sheet with numbered sections and a contents list. Visitors can print it or save it as a clean PDF. |
+| **Side panel** | Profile, contact links and resume button always visible in a dark panel on the left. |
+
+## 3. Setting it up for a friend
+
+Each person gets their own copy: their own GitHub repo, Supabase project and Vercel project. Nobody shares a database.
+
+1. **Get the code**: on GitHub open this repo → **Use this template** (enable it under Settings → General → Template repository) or **Fork**. If the repo is private, add your friend as a collaborator first, or send them the ZIP.
+2. **Database**: in their new Supabase project, run **`supabase/migrations/0001_init.sql`** only — *not* `setup.sql`, which loads Fakhrullah's content. Then follow 1.1 steps 3–6 with their own email.
+3. **Hosting**: follow 1.3 and 1.4 with their own keys and URL.
+4. **Content**: they sign in at `/admin`, fill in Profile, About, Experience and so on, pick a template, and press **Publish**. Until the first publish, the public page shows "Coming soon".
+
+## 4. Updating the portfolio (no code)
 
 | I want to… | Go to |
 | --- | --- |
@@ -80,14 +99,14 @@ Open `https://YOUR-SITE/admin`, sign in, then work through the **Finish your pro
 | Read contact form messages | **Messages** |
 | Change password | **Account** |
 
-Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**. The top bar shows "Unpublished changes" until you do.
+Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**. Nothing changes on the live site until you publish. The top bar shows "Unpublished changes" until you do.
 
 - **Hide vs delete**: the switch hides an item but keeps it in your draft; the bin deletes it (with confirmation).
 - **Resume link**: `https://YOUR-SITE/resume` always opens the latest *published* PDF — use it in emails and job applications.
 - **Profile photo**: Profile & home → *Upload image* (resized automatically) → Save draft → Publish. Turn "Show photo" off to hide it.
 - **Images** are compressed in your browser before upload (max 15 MB in, 5 MB stored). Allowed: JPG, PNG, WebP, AVIF. Resume: PDF only, max 10 MB.
 
-## 3. Backup and recovery
+## 5. Backup and recovery
 
 - **Version history**: Overview → *Published versions* → **Restore** puts any earlier version back (draft + live).
 - **Full database backup**: Supabase → **Database → Backups** (daily backups on paid plans). On the free plan, export regularly:
@@ -101,16 +120,16 @@ Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**.
 - **Restore into a new project**: run `supabase/setup.sql`, then load your data backup with `psql … -f portfolio-backup.sql`, re-upload storage files to the same paths, create your admin user and run `grant_admin` again.
 - **Lost password**: `/admin/login` → *Forgot password?* (requires 1.4). Alternatively Supabase → Authentication → Users → your user → *Send password recovery*.
 
-## 4. Custom domain (optional)
+## 6. Custom domain (optional)
 
 Buy a domain (e.g. `fakhrullah.my`), then Vercel → Project → **Settings → Domains** → add it and follow the DNS instructions. Afterwards update `NEXT_PUBLIC_SITE_URL` (Vercel, then Redeploy) and Supabase **Site URL** / **Redirect URLs**.
 
-## 5. Optional extras
+## 7. Optional extras
 
 - **Email alerts for new messages**: create a free <https://resend.com> account and set `RESEND_API_KEY` and `CONTACT_NOTIFY_EMAIL` (and `CONTACT_FROM_EMAIL` once you verify a domain).
 - **Stronger bot protection**: create a Cloudflare Turnstile widget and set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
 
-## 6. Security summary
+## 8. Security summary
 
 - No public sign-up. Admin rights come only from `grant_admin()` run in the SQL Editor.
 - Row-level security on every table; storage writes limited to admins; bucket-level MIME type and size limits.
@@ -118,7 +137,7 @@ Buy a domain (e.g. `fakhrullah.my`), then Vercel → Project → **Settings → 
 - The secret key is used server-side only (contact form). Contact form: validation on client, server and database, honeypot field, timing check, same-origin check, per-sender and daily rate limits, optional Turnstile.
 - Links are restricted to `http(s)`; React escapes all text; security headers (`X-Frame-Options`, `nosniff`, referrer policy, CSP `frame-ancestors`) are set in `next.config.ts`; `/admin` is `noindex`.
 
-## 7. Local development
+## 9. Local development
 
 ```bash
 npm install

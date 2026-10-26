@@ -186,6 +186,18 @@ export const SETTINGS_FIELDS: Partial<Record<SettingsSection, Field[]>> = {
     { type: "image", name: "og_image_path", label: "Social sharing image", folder: "social", variant: "og", aspect: "aspect-[1200/630]", help: "Shown when your link is shared on LinkedIn or WhatsApp. Leave empty to use an automatic image with your name and title." },
   ],
   theme: [
+    {
+      type: "choice",
+      name: "template",
+      label: "Template",
+      thumbs: true,
+      help: "Changes the whole layout. Your content stays the same. Use Preview to compare before publishing.",
+      options: [
+        { value: "classic", label: "Classic", description: "Open layout with a process diagram and project cards." },
+        { value: "document", label: "Document", description: "Specification-style sheet with numbered sections. Prints as a clean PDF." },
+        { value: "panel", label: "Side panel", description: "Profile, links and resume always visible on the left." },
+      ],
+    },
     { type: "color", name: "accent", label: "Accent colour", help: "Used for main buttons and highlights." },
     {
       type: "select",

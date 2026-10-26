@@ -9,6 +9,7 @@ import { storageUrl } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ActionResult } from "@/lib/actions";
 import { uploadImage, type ImageVariant } from "./uploads";
+import { TemplateThumb } from "./template-thumb";
 
 type Base = { name: string; label: string; help?: string; half?: boolean; showIf?: (v: Values) => boolean };
 export type Field =
@@ -17,6 +18,7 @@ export type Field =
   | (Base & { type: "toggle" })
   | (Base & { type: "select"; options: { value: string; label: string }[] })
   | (Base & { type: "color" })
+  | (Base & { type: "choice"; options: { value: string; label: string; description?: string }[]; thumbs?: boolean })
   | (Base & { type: "list"; itemLabel: string; multiline?: boolean; maxLength?: number })
   | (Base & { type: "tags"; placeholder?: string })
   | (Base & { type: "links" })
@@ -301,6 +303,31 @@ export function FieldControl({ field, values, setValue, errors }: { field: Exclu
         </div>
       );
       break;
+    case "choice":
+      control = (
+        <div role="radiogroup" aria-labelledby={`${id}-label`} className="grid gap-3 sm:grid-cols-3">
+          {field.options.map((o) => {
+            const checked = v === o.value;
+            return (
+              <label
+                key={o.value}
+                className={cn(
+                  "flex cursor-pointer flex-col gap-3 rounded-xl border bg-surface p-3 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent",
+                  checked ? "border-accent shadow-[0_0_0_1px_var(--accent)]" : "border-line hover:border-line-strong",
+                )}
+              >
+                <input type="radio" name={id} value={o.value} checked={checked} onChange={() => setValue(field.name, o.value)} className="sr-only" />
+                {field.thumbs && <TemplateThumb id={o.value} />}
+                <span>
+                  <span className="block text-sm font-medium">{o.label}</span>
+                  {o.description && <span className="mt-0.5 block text-[12px] leading-snug text-muted">{o.description}</span>}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      );
+      break;
     case "list":
       control = <ListEditor labelId={`${id}-label`} value={Array.isArray(v) ? v : []} onChange={(x) => setValue(field.name, x)} itemLabel={field.itemLabel} multiline={field.multiline} maxLength={field.maxLength} />;
       break;
@@ -326,7 +353,7 @@ export function FieldControl({ field, values, setValue, errors }: { field: Exclu
         />
       );
   }
-  const fullWidth = !field.half || ["list", "links", "textarea", "image", "tags"].includes(field.type);
+  const fullWidth = !field.half || ["list", "links", "textarea", "image", "tags", "choice"].includes(field.type);
   return (
     <div className={cn("space-y-1.5", fullWidth && "sm:col-span-2")}>
       <Label id={`${id}-label`} htmlFor={["list", "links"].includes(field.type) ? undefined : id}>

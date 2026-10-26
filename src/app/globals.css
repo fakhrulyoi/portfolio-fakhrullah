@@ -110,3 +110,10 @@ body {
    readable accent tone at that level so dark mode stays legible. */
 .accent-scope { --accent-ink: var(--accent); }
 .dark .accent-scope { --accent-ink: color-mix(in oklab, var(--accent) 62%, white); }
+
+/* Document template: book serif for reading, Geist for metadata. */
+.font-doc { font-family: "Newsreader Variable", "Iowan Old Style", Charter, Georgia, serif; font-optical-sizing: auto; }
+@media print {
+  @page { margin: 16mm; }
+  body { background: #fff !important; }
+}

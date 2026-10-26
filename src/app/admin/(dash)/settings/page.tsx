@@ -21,11 +21,11 @@ export default async function SettingsPage() {
     <>
       <PageHeader title="Site settings" description="Search and sharing details, colours, and which sections appear on your site. Each block saves separately." />
       <div className="space-y-6">
+        <Block title="Appearance" description="Template, accent colour and light/dark mode.">
+          <SettingsForm section="theme" initial={s.theme} />
+        </Block>
         <Block title="Search and social sharing" description="How your site appears in Google and when your link is shared.">
           <SettingsForm section="seo" initial={s.seo} />
-        </Block>
-        <Block title="Appearance" description="Accent colour and light/dark mode.">
-          <SettingsForm section="theme" initial={s.theme} />
         </Block>
         <Block title="Sections" description="Turn whole sections on or off. Empty sections are hidden automatically.">
           <SettingsForm section="sections" initial={s.sections} />
