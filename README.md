@@ -65,6 +65,15 @@ Open `https://YOUR-SITE/admin`, sign in, then work through the **Finish your pro
 
 ---
 
+### 1.6 Updates that need a database step
+Most updates deploy automatically. A few add database changes; run each once in **Supabase → SQL Editor**:
+
+| File | Needed for |
+| --- | --- |
+| `supabase/migrations/0002_private_resume_settings.sql` | Saving ATS resume settings (kept private, never published) |
+
+New installs that ran the current `setup.sql` already include these.
+
 ## 2. Templates
 
 Three layouts use the same content. Switch in **Site settings → Appearance → Template**, check with **Preview**, then **Publish**.
@@ -102,7 +111,7 @@ Each person gets their own copy: their own GitHub repo, Supabase project and Ver
 
 Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**. Nothing changes on the live site until you publish. The top bar shows "Unpublished changes" until you do.
 
-- **ATS resume**: builds a one-column resume from your portfolio content (standard headings, real text, Helvetica/Calibri, no tables or images). Change the target title and summary, pick which jobs/projects to include, paste a job ad to see which of its key terms you already use, then **Download PDF** or **Download Word**. **Use on my website** replaces the resume visitors download (publish to make it live). Saving these settings counts as a draft change, so the top bar will show "Unpublished changes" — publishing is harmless.
+- **ATS resume**: builds a one-column resume from your portfolio content in the same layout as Fakhrullah's reference resume (centred header, Calibri-style font, ruled section headings, bold right-aligned dates). Technical skills are written as "Category: skill, skill" lines; references stay private. Change the target title and summary, pick which jobs/projects to include, paste a job ad to see which of its key terms you already use, then **Download PDF** or **Download Word**. **Use on my website** replaces the resume visitors download (publish to make it live).
 - **Hide vs delete**: the switch hides an item but keeps it in your draft; the bin deletes it (with confirmation).
 - **Resume link**: `https://YOUR-SITE/resume` always opens the latest *published* PDF — use it in emails and job applications.
 - **Profile photo**: Profile & home → *Upload image* (resized automatically) → Save draft → Publish. Turn "Show photo" off to hide it.

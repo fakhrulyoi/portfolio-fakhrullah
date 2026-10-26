@@ -1,19 +1,23 @@
-import { formatRange } from "./format";
-import type { Education, Experience, Project, Settings, SkillGroup } from "./schemas";
+import type { AtsSettings, Education, Experience, Project, Settings, SkillGroup } from "./schemas";
 
-/** Plain, single-column resume structure used by the preview, PDF, Word and text exports. */
+/**
+ * Resume structure (matches the owner's reference layout): centred header,
+ * Professional Summary, Technical Skills (labelled lines), Work Experience,
+ * Education, Projects, Certifications, Leadership & Activities, Reference.
+ */
+export type AtsEntry = { heading: string; sub: string; dates: string; bullets: string[] };
 export type AtsResume = {
   name: string;
   title: string;
   contact: string[];
   summary: string;
-  skills: string[];
-  experience: { heading: string; org: string; meta: string; dates: string; bullets: string[] }[];
-  projects: { heading: string; meta: string; bullets: string[] }[];
-  education: { heading: string; org: string; dates: string; detail: string }[];
+  skills: { label: string; text: string }[];
+  experience: AtsEntry[];
+  education: AtsEntry[];
+  projects: AtsEntry[];
   certifications: string[];
-  languages: string[];
   activities: string[];
+  references: string[];
   fileName: string;
 };
 
@@ -25,23 +29,54 @@ export type AtsSource = {
   skill_groups: SkillGroup[];
 };
 
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const clean = (s: string) => s.replace(/\s+/g, " ").trim();
+const longMonth = (ym: string) => {
+  const m = /^(\d{4})-(\d{2})$/.exec(ym);
+  return m ? `${MONTHS[Number(m[2]) - 1]} ${m[1]}` : "";
+};
+/** "February 2026 – Present"; whole calendar years (Jan–Dec) show just the end year. */
+export function longRange(start: string, end: string, current = false) {
+  if (!current && /-01$/.test(start) && /-12$/.test(end)) return end.slice(0, 4);
+  const s = longMonth(start);
+  const e = current ? "Present" : longMonth(end);
+  return s && e ? `${s} – ${e}` : s || e;
+}
+const stripUrl = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const joinAnd = (a: string[]) => (a.length <= 1 ? a.join("") : `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`);
 
-export function buildAtsResume(src: AtsSource, ats: Settings["ats"]): AtsResume {
+function placeLine(institution: string, location: string) {
+  const extra = location
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p && !/^malaysia$/i.test(p) && !institution.toLowerCase().includes(p.toLowerCase()));
+  return [institution, ...extra].join(", ");
+}
+
+export function buildAtsResume(src: AtsSource, ats: AtsSettings): AtsResume {
   const { profile, about } = src.settings;
   const excluded = new Set(ats.excluded);
   const limit = ats.max_bullets === "all" ? Infinity : Number(ats.max_bullets);
 
   const contact = [
     ats.show_location && profile.location,
-    profile.email,
     ats.show_phone && profile.phone,
-    ats.show_links && profile.linkedin_url && profile.linkedin_url.replace(/^https?:\/\/(www\.)?/, ""),
-    ats.show_links && profile.github_url && profile.github_url.replace(/^https?:\/\/(www\.)?/, ""),
-    ...(ats.show_links ? profile.other_links.map((l) => l.url.replace(/^https?:\/\/(www\.)?/, "")) : []),
+    profile.email,
+    ...(ats.show_links ? [profile.linkedin_url, profile.github_url, ...profile.other_links.map((l) => l.url)].filter(Boolean).map(stripUrl) : []),
   ].filter(Boolean) as string[];
 
-  const skills = ats.skills.length ? ats.skills : src.skill_groups.filter((g) => g.visible !== false).flatMap((g) => g.items);
+  // Skills: custom lines ("Label: items") or the Skills page groups.
+  const skills = (
+    ats.skills.length
+      ? ats.skills.map((line) => {
+          const i = line.indexOf(":");
+          return i > 0 && i < 60 ? { label: line.slice(0, i).trim(), text: line.slice(i + 1).trim() } : { label: "", text: line };
+        })
+      : src.skill_groups.filter((g) => g.visible !== false && g.items.length).map((g) => ({ label: g.name, text: g.items.join(", ") }))
+  ).filter((l) => l.text);
+  if (ats.include_languages && about.languages.length && !skills.some((l) => /^languages?$/i.test(l.label))) {
+    skills.push({ label: "Languages", text: about.languages.join(", ") });
+  }
 
   const base = clean(profile.full_name.replace(/\s+bin(ti)?\s+.*/i, "")) || "Resume";
   const fileName = (ats.file_name || `${base} Resume`).replace(/\s+/g, "_");
@@ -51,87 +86,86 @@ export function buildAtsResume(src: AtsSource, ats: Settings["ats"]): AtsResume 
     title: ats.target_title || profile.title,
     contact,
     summary: clean(ats.summary || about.summary[0] || profile.intro || ""),
-    skills: [...new Set(skills.map(clean).filter(Boolean))],
+    skills,
     experience: src.experiences
       .filter((e) => !excluded.has(e.id))
       .map((e) => ({
-        heading: e.role,
-        org: e.company,
-        meta: [e.employment_type, e.location].filter(Boolean).join(", "),
-        dates: formatRange(e.start_date, e.end_date, e.is_current),
+        heading: /internship/i.test(e.employment_type) && !/intern/i.test(e.role) ? `${e.role} (Internship)` : e.role,
+        sub: [e.company, e.context, e.location ? `${e.location}${e.work_mode ? ` (${e.work_mode})` : ""}` : ""].filter(Boolean).join(" | "),
+        dates: longRange(e.start_date, e.end_date, e.is_current),
         bullets: (e.highlights.length ? e.highlights : e.summary ? [e.summary] : []).slice(0, limit).map(clean),
+      })),
+    education: src.education
+      .filter((e) => !excluded.has(e.id))
+      .map((e) => ({
+        heading: e.qualification,
+        sub: [placeLine(e.institution, e.location), e.grade].filter(Boolean).join(" | "),
+        dates: longRange(e.start_date, e.end_date),
+        bullets: [],
       })),
     projects: ats.include_projects
       ? src.projects
           .filter((p) => !excluded.has(p.id))
           .map((p) => ({
-            heading: p.title,
-            meta: [p.role, p.year].filter(Boolean).join(", "),
+            heading: /final year project/i.test(p.category) && !/final year/i.test(p.title) ? `${p.title} (Final Year Project)` : p.title,
+            sub: "",
+            dates: p.year,
             bullets: [
               ...(p.contributions.length ? p.contributions : p.summary ? [p.summary] : []).slice(0, Math.min(limit, 4)),
-              ...p.awards.map((a) => `Award: ${a}`),
-              ...(p.tech.length ? [`Technologies: ${p.tech.join(", ")}`] : []),
+              ...(p.awards.length ? [`Awards: ${joinAnd(p.awards)}.`] : []),
             ].map(clean),
           }))
       : [],
-    education: src.education
-      .filter((e) => !excluded.has(e.id))
-      .map((e) => ({
-        heading: e.qualification,
-        org: e.institution,
-        dates: formatRange(e.start_date, e.end_date),
-        detail: e.grade,
-      })),
     certifications: ats.certifications,
-    languages: ats.include_languages ? about.languages : [],
     activities: ats.include_activities ? about.activities : [],
+    references: ats.references,
     fileName,
   };
 }
 
 /** Plain-text version (paste into job portals that ask for text). */
 export function atsToText(r: AtsResume) {
-  const out: string[] = [r.name.toUpperCase(), r.title, r.contact.join(" | "), ""];
-  const section = (t: string) => out.push("", t.toUpperCase(), "-".repeat(t.length));
+  const out: string[] = [r.name.toUpperCase(), r.title, r.contact.join(" | ")];
+  const section = (t: string) => out.push("", t.toUpperCase());
+  const entries = (list: AtsEntry[]) =>
+    list.forEach((e) => {
+      out.push(`${e.heading}${e.dates ? ` | ${e.dates}` : ""}`);
+      if (e.sub) out.push(e.sub);
+      e.bullets.forEach((b) => out.push(`- ${b}`));
+    });
   if (r.summary) {
     section("Professional Summary");
     out.push(r.summary);
   }
   if (r.skills.length) {
-    section("Skills");
-    out.push(r.skills.join(", "));
+    section("Technical Skills");
+    r.skills.forEach((l) => out.push(l.label ? `${l.label}: ${l.text}` : l.text));
   }
   if (r.experience.length) {
     section("Work Experience");
-    r.experience.forEach((e) => {
-      out.push("", `${e.heading} | ${e.org}${e.meta ? ` | ${e.meta}` : ""}`, e.dates);
-      e.bullets.forEach((b) => out.push(`- ${b}`));
-    });
-  }
-  if (r.projects.length) {
-    section("Projects");
-    r.projects.forEach((p) => {
-      out.push("", `${p.heading}${p.meta ? ` | ${p.meta}` : ""}`);
-      p.bullets.forEach((b) => out.push(`- ${b}`));
-    });
+    entries(r.experience);
   }
   if (r.education.length) {
     section("Education");
-    r.education.forEach((e) => out.push("", `${e.heading} | ${e.org}`, [e.dates, e.detail].filter(Boolean).join(" | ")));
+    entries(r.education);
+  }
+  if (r.projects.length) {
+    section("Projects");
+    entries(r.projects);
   }
   if (r.certifications.length) {
     section("Certifications");
     r.certifications.forEach((c) => out.push(`- ${c}`));
   }
-  if (r.languages.length) {
-    section("Languages");
-    out.push(r.languages.join(", "));
-  }
   if (r.activities.length) {
-    section("Leadership and Activities");
+    section("Leadership & Activities");
     r.activities.forEach((a) => out.push(`- ${a}`));
   }
-  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+  if (r.references.length) {
+    section(r.references.length > 1 ? "References" : "Reference");
+    r.references.forEach((x) => out.push(x));
+  }
+  return out.join("\n").trim() + "\n";
 }
 
 // ---------------------------------------------------------------------------
@@ -196,7 +230,7 @@ export function atsChecks(r: AtsResume) {
     { ok: Boolean(r.contact.some((c) => c.includes("@"))), label: "Email address included" },
     { ok: Boolean(r.title), label: "Target job title at the top" },
     { ok: r.summary.length >= 150 && r.summary.length <= 700, label: "Summary is 2–4 sentences (150–700 characters)" },
-    { ok: r.skills.length >= 6 && r.skills.length <= 30, label: "6–30 skills listed as keywords" },
+    { ok: r.skills.some((l) => l.text.split(",").length >= 3), label: "Skills listed as keywords" },
     { ok: r.experience.every((e) => e.dates), label: "Every job has dates" },
     { ok: r.experience.every((e) => e.bullets.length <= 8), label: "No more than 8 bullet points per job" },
     { ok: words <= 900, label: `Length suits 1–2 pages (${words} words)` },

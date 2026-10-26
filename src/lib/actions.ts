@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getAdminOrNull } from "./auth";
 import { createSupabaseServerClient } from "./supabase/server";
 import {
+  atsSchema,
   COLLECTIONS,
   isCollection,
   mergeSettings,
@@ -116,6 +117,28 @@ export async function saveSettings(section: SettingsSection, values: unknown): P
   if (error) return dbError(error.message);
   touchAdmin();
   return { ok: true, message: "Draft saved." };
+}
+
+// ---------------------------------------------------------------------------
+// ATS resume builder (private: never published)
+// ---------------------------------------------------------------------------
+export async function saveAts(values: unknown): Promise<ActionResult> {
+  const admin = await getAdminOrNull();
+  if (!admin) return NOT_ALLOWED;
+  const parsed = atsSchema.safeParse(values);
+  if (!parsed.success) return { ok: false, error: "Check the highlighted fields.", fieldErrors: fieldErrors(parsed.error) };
+  const { data: row, error: readErr } = await admin.supabase.from("private_settings").select("data").eq("id", 1).maybeSingle();
+  if (readErr) {
+    if (/private_settings|schema cache|does not exist/i.test(readErr.message)) {
+      return { ok: false, error: "Run supabase/migrations/0002_private_resume_settings.sql in Supabase first (see README)." };
+    }
+    return dbError(readErr.message);
+  }
+  const data = { ...((row?.data as object) ?? {}), ats: parsed.data };
+  const { error } = await admin.supabase.from("private_settings").upsert({ id: 1, data });
+  if (error) return dbError(error.message);
+  revalidatePath("/admin/ats-resume");
+  return { ok: true, message: "Resume settings saved." };
 }
 
 // ---------------------------------------------------------------------------

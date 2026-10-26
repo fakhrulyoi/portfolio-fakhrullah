@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label, Textarea } from "@/components/ui/input";
 import { Confirm } from "@/components/ui/confirm";
 import { atsChecks, atsToText, buildAtsResume, keywordMatch, type AtsResume, type AtsSource } from "@/lib/ats";
-import { saveSettings } from "@/lib/actions";
-import type { Settings } from "@/lib/schemas";
+import { saveAts, saveSettings } from "@/lib/actions";
+import type { AtsSettings } from "@/lib/schemas";
 import { AdminForm, type Field, type Values } from "../form";
 import { uploadPdf } from "../uploads";
 import { ResumePreview } from "./preview";
@@ -24,20 +24,19 @@ function download(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-export function AtsBuilder({ source, initial }: { source: AtsSource; initial: Settings["ats"] }) {
+export function AtsBuilder({ source, initial, ready }: { source: AtsSource; initial: AtsSettings; ready: boolean }) {
   const router = useRouter();
-  const [ats, setAts] = useState<Settings["ats"]>(initial);
+  const [ats, setAts] = useState<AtsSettings>(initial);
   const [busy, setBusy] = useState<"" | "pdf" | "docx" | "site">("");
   const [jd, setJd] = useState("");
 
-  const onValuesChange = useCallback((v: Values) => setAts(v as Settings["ats"]), []);
+  const onValuesChange = useCallback((v: Values) => setAts(v as AtsSettings), []);
   const resume: AtsResume = useMemo(() => buildAtsResume(source, ats), [source, ats]);
   const text = useMemo(() => atsToText(resume), [resume]);
   const checks = useMemo(() => atsChecks(resume), [resume]);
   const keywords = useMemo(() => (jd.trim().length > 40 ? keywordMatch(jd, text, 30) : []), [jd, text]);
   const matched = keywords.filter((k) => k.found).length;
 
-  const allSkills = source.skill_groups.flatMap((g) => g.items);
   const fields: Field[] = [
     { type: "heading", name: "_top", label: "Header" },
     { type: "text", name: "target_title", label: "Target job title", half: true, maxLength: 120, placeholder: source.settings.profile.title, help: "Match the title in the job ad when it's accurate for you." },
@@ -58,12 +57,22 @@ export function AtsBuilder({ source, initial }: { source: AtsSource; initial: Se
     {
       type: "list",
       name: "skills",
-      label: "Skills (keywords)",
-      itemLabel: "Skill",
-      maxLength: 80,
-      help: `Leave empty to use all ${allSkills.length} skills from the Skills page. Put the skills from the job ad first, using the same wording.`,
+      label: "Technical skills lines",
+      itemLabel: "Line",
+      maxLength: 400,
+      multiline: true,
+      help: `One line per category, written as "Category: skill, skill, skill" (the category is shown in bold). Leave empty to use your ${source.skill_groups.length} groups from the Skills page. Put the skills named in the job ad first.`,
     },
     { type: "list", name: "certifications", label: "Certifications", itemLabel: "Certification", maxLength: 200, help: "Only certificates you actually hold." },
+    {
+      type: "list",
+      name: "references",
+      label: "References",
+      itemLabel: "Reference",
+      multiline: true,
+      maxLength: 300,
+      help: "e.g. Name, position, organisation | email. Ask your referee first. Kept private: never shown on your website.",
+    },
     { type: "heading", name: "_content", label: "What to include" },
     {
       type: "select",
@@ -78,8 +87,8 @@ export function AtsBuilder({ source, initial }: { source: AtsSource; initial: Se
       ],
     },
     { type: "toggle", name: "include_projects", label: "Projects section", half: true },
-    { type: "toggle", name: "include_languages", label: "Languages section", half: true },
-    { type: "toggle", name: "include_activities", label: "Leadership and activities section", half: true },
+    { type: "toggle", name: "include_languages", label: "Languages line under Technical Skills", half: true },
+    { type: "toggle", name: "include_activities", label: "Leadership & Activities section", half: true },
     {
       type: "include",
       name: "excluded",
@@ -152,6 +161,13 @@ export function AtsBuilder({ source, initial }: { source: AtsSource; initial: Se
   return (
     <div data-wide className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="min-w-0 space-y-6">
+        {!ready && (
+          <p role="alert" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm leading-relaxed">
+            <strong>One-time setup needed.</strong> To save resume settings, run{" "}
+            <code className="rounded bg-sunken px-1">supabase/migrations/0002_private_resume_settings.sql</code> in Supabase → SQL Editor. You can
+            still preview and download without it.
+          </p>
+        )}
         <section aria-labelledby="kw" className="rounded-xl border border-line bg-surface p-4">
           <h2 id="kw" className="text-sm font-semibold">Tailor to a job ad</h2>
           <div className="mt-3 space-y-1.5">
@@ -208,7 +224,7 @@ export function AtsBuilder({ source, initial }: { source: AtsSource; initial: Se
         <AdminForm
           fields={fields}
           initial={initial as unknown as Values}
-          onSave={(v) => saveSettings("ats", v)}
+          onSave={(v) => saveAts(v)}
           onValuesChange={onValuesChange}
           submitLabel="Save settings"
         />

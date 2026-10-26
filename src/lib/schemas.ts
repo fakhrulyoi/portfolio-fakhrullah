@@ -123,6 +123,7 @@ export const atsSchema = z.object({
   include_projects: z.boolean(),
   include_languages: z.boolean(),
   include_activities: z.boolean(),
+  references: list(4, 300),
   excluded: z.array(z.uuid()).max(300),
   file_name: z
     .string()
@@ -139,7 +140,6 @@ export const settingsSectionSchemas = {
   theme: themeSchema,
   sections: sectionsSchema,
   contact: contactSettingsSchema,
-  ats: atsSchema,
 } as const;
 
 export type Settings = { [K in keyof typeof settingsSectionSchemas]: z.output<(typeof settingsSectionSchemas)[K]> };
@@ -170,22 +170,36 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: { template: "classic", accent: "#2450D8", default_mode: "light", allow_toggle: true },
   sections: { about: true, experience: true, projects: true, skills: true, education: true, resume: true, contact: true },
   contact: { intro: "", form_enabled: true },
-  ats: {
-    target_title: "",
-    summary: "",
-    skills: [],
-    certifications: [],
-    max_bullets: "all",
-    show_phone: true,
-    show_location: true,
-    show_links: true,
-    include_projects: true,
-    include_languages: true,
-    include_activities: false,
-    excluded: [],
-    file_name: "",
-  },
 };
+
+export type AtsSettings = z.output<typeof atsSchema>;
+export const DEFAULT_ATS: AtsSettings = {
+  target_title: "",
+  summary: "",
+  skills: [],
+  certifications: [],
+  references: [],
+  max_bullets: "all",
+  show_phone: true,
+  show_location: true,
+  show_links: true,
+  include_projects: true,
+  include_languages: true,
+  include_activities: true,
+  excluded: [],
+  file_name: "",
+};
+
+export function mergeAts(raw: unknown): AtsSettings {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const out: Record<string, unknown> = { ...DEFAULT_ATS };
+  for (const [k, d] of Object.entries(DEFAULT_ATS)) {
+    const v = r[k];
+    if (v === undefined || v === null) continue;
+    if (Array.isArray(d) ? Array.isArray(v) : typeof v === typeof d) out[k] = v;
+  }
+  return out as AtsSettings;
+}
 
 /** Fill any missing keys (e.g. after adding a new setting) with defaults. */
 export function mergeSettings(raw: unknown): Settings {

@@ -1,65 +1,75 @@
-import { AlignmentType, BorderStyle, Document, Packer, Paragraph, TabStopType, TextRun } from "docx";
-import type { AtsResume } from "@/lib/ats";
+import { AlignmentType, BorderStyle, Document, LevelFormat, Packer, Paragraph, TabStopType, TextRun } from "docx";
+import type { AtsEntry, AtsResume } from "@/lib/ats";
 
-// Word version: Calibri, single column, built-in bullet style, no tables.
+// Word version of the same layout: Calibri, centred header, ruled headings,
+// right tab for dates, italic organisation lines, real Word bullets.
 const FONT = "Calibri";
-const run = (text: string, opts: { bold?: boolean; size?: number; color?: string } = {}) =>
-  new TextRun({ text, font: FONT, size: opts.size ?? 21, bold: opts.bold, color: opts.color });
+const SIZE = 20; // half-points: 10pt
+const RIGHT = 10466; // A4 width (11906) minus 0.5" margins (720 each), in twips
 
-const heading = (t: string) =>
+const t = (text: string, o: { bold?: boolean; italics?: boolean; size?: number; allCaps?: boolean } = {}) =>
+  new TextRun({ text, font: FONT, size: o.size ?? SIZE, bold: o.bold, italics: o.italics, allCaps: o.allCaps });
+
+const heading = (text: string) =>
   new Paragraph({
-    spacing: { before: 240, after: 80 },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "999999", space: 2 } },
-    children: [run(t.toUpperCase(), { bold: true, size: 22 })],
+    spacing: { before: 200, after: 60 },
+    keepNext: true,
+    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 1 } },
+    children: [t(text, { bold: true, size: 21, allCaps: true })],
   });
-const para = (t: string) => new Paragraph({ spacing: { after: 40 }, children: [run(t)] });
-const bullet = (t: string) => new Paragraph({ bullet: { level: 0 }, spacing: { after: 20 }, children: [run(t)] });
-const titleRow = (left: string, right: string) =>
-  new Paragraph({
-    spacing: { before: 120 },
-    tabStops: [{ type: TabStopType.RIGHT, position: 9600 }],
-    children: [run(left, { bold: true }), ...(right ? [run(`\t${right}`, { color: "333333" })] : [])],
-  });
+const bullet = (text: string) => new Paragraph({ numbering: { reference: "bullets", level: 0 }, spacing: { after: 40 }, children: [t(text)] });
+
+function entries(list: AtsEntry[]) {
+  const out: Paragraph[] = [];
+  for (const e of list) {
+    out.push(
+      new Paragraph({
+        spacing: { before: 100 },
+        keepNext: true,
+        tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }],
+        children: [t(e.heading, { bold: true }), ...(e.dates ? [t(`\t${e.dates}`, { bold: true })] : [])],
+      }),
+    );
+    if (e.sub) out.push(new Paragraph({ keepNext: e.bullets.length > 0, children: [t(e.sub, { italics: true })] }));
+    e.bullets.forEach((b) => out.push(bullet(b)));
+  }
+  return out;
+}
 
 export async function resumeDocxBlob(r: AtsResume) {
-  const children: Paragraph[] = [
-    new Paragraph({ alignment: AlignmentType.LEFT, children: [run(r.name, { bold: true, size: 34 })] }),
-  ];
-  if (r.title) children.push(new Paragraph({ children: [run(r.title, { size: 23 })] }));
-  if (r.contact.length) children.push(new Paragraph({ children: [run(r.contact.join(" | "), { size: 19, color: "333333" })] }));
-  if (r.summary) children.push(heading("Professional Summary"), para(r.summary));
-  if (r.skills.length) children.push(heading("Skills"), para(r.skills.join(", ")));
-  if (r.experience.length) {
-    children.push(heading("Work Experience"));
-    for (const e of r.experience) {
-      children.push(titleRow(`${e.heading}, ${e.org}`, e.dates));
-      if (e.meta) children.push(new Paragraph({ children: [run(e.meta, { color: "333333" })] }));
-      e.bullets.forEach((b) => children.push(bullet(b)));
-    }
+  const center = (runs: TextRun[]) => new Paragraph({ alignment: AlignmentType.CENTER, children: runs });
+  const children: Paragraph[] = [center([t(r.name, { bold: true, size: 28, allCaps: true })])];
+  if (r.title) children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 40 }, children: [t(r.title, { size: 21 })] }));
+  if (r.contact.length) children.push(center([t(r.contact.join(" | "))]));
+  if (r.summary) children.push(heading("Professional Summary"), new Paragraph({ children: [t(r.summary)] }));
+  if (r.skills.length) {
+    children.push(heading("Technical Skills"));
+    r.skills.forEach((l) =>
+      children.push(new Paragraph({ spacing: { after: 20 }, children: [...(l.label ? [t(`${l.label}: `, { bold: true })] : []), t(l.text)] })),
+    );
   }
-  if (r.projects.length) {
-    children.push(heading("Projects"));
-    for (const p of r.projects) {
-      children.push(titleRow(p.heading, ""));
-      if (p.meta) children.push(new Paragraph({ children: [run(p.meta, { color: "333333" })] }));
-      p.bullets.forEach((b) => children.push(bullet(b)));
-    }
-  }
-  if (r.education.length) {
-    children.push(heading("Education"));
-    for (const e of r.education) {
-      children.push(titleRow(e.heading, e.dates), para([e.org, e.detail].filter(Boolean).join(", ")));
-    }
-  }
+  if (r.experience.length) children.push(heading("Work Experience"), ...entries(r.experience));
+  if (r.education.length) children.push(heading("Education"), ...entries(r.education));
+  if (r.projects.length) children.push(heading("Projects"), ...entries(r.projects));
   if (r.certifications.length) children.push(heading("Certifications"), ...r.certifications.map(bullet));
-  if (r.languages.length) children.push(heading("Languages"), para(r.languages.join(", ")));
-  if (r.activities.length) children.push(heading("Leadership and Activities"), ...r.activities.map(bullet));
+  if (r.activities.length) children.push(heading("Leadership & Activities"), ...r.activities.map(bullet));
+  if (r.references.length) {
+    children.push(heading(r.references.length > 1 ? "References" : "Reference"), ...r.references.map((x) => new Paragraph({ children: [t(x)] })));
+  }
 
   const doc = new Document({
     creator: r.name,
     title: `${r.name} - Resume`,
-    styles: { default: { document: { run: { font: FONT, size: 21 } } } },
-    sections: [{ properties: { page: { margin: { top: 800, bottom: 800, left: 1000, right: 1000 } } }, children }],
+    styles: { default: { document: { run: { font: FONT, size: SIZE } } } },
+    numbering: {
+      config: [
+        {
+          reference: "bullets",
+          levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 400, hanging: 220 } } } }],
+        },
+      ],
+    },
+    sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 680, bottom: 680, left: 720, right: 720 } } }, children }],
   });
   return Packer.toBlob(doc);
 }
