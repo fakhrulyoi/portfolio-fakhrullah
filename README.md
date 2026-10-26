@@ -112,6 +112,7 @@ Each person gets their own copy: their own GitHub repo, Supabase project and Ver
 Every save is a **draft**. Use **Preview** (top bar) to check, then **Publish**. Nothing changes on the live site until you publish. The top bar shows "Unpublished changes" until you do.
 
 - **ATS resume**: builds a one-column resume from your portfolio content in the same layout as Fakhrullah's reference resume (centred header, Calibri-style font, ruled section headings, bold right-aligned dates). Technical skills are written as "Category: skill, skill" lines; references stay private. Change the target title and summary, pick which jobs/projects to include, paste a job ad to see which of its key terms you already use, then **Download PDF** or **Download Word**. **Use on my website** replaces the resume visitors download (publish to make it live).
+- **How I work (Process section)**: Profile & home → "How you work". One line per step, written as `Step name: one short sentence`. Each step gets a matching animated illustration automatically (requirements, specs/documents, system/API design, wireframes, testing/UAT, sign-off/support), and the section pins while visitors scroll on large screens.
 - **Hide vs delete**: the switch hides an item but keeps it in your draft; the bin deletes it (with confirmation).
 - **Resume link**: `https://YOUR-SITE/resume` always opens the latest *published* PDF — use it in emails and job applications.
 - **Profile photo**: Profile & home → *Upload image* (resized automatically) → Save draft → Publish. Turn "Show photo" off to hide it.

@@ -1,6 +1,6 @@
 import { Download, FileText, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { formatDateTime, formatRange, initials, storageUrl } from "@/lib/format";
+import { formatDateTime, formatRange, initials, parseStep, storageUrl } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "../theme-toggle";
 import { ContactForm } from "../contact-form";
@@ -143,7 +143,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
                     <li key={i} className="rise-b flex items-center" style={{ "--d": 800 + i * 90 } as React.CSSProperties}>
                       <span className="rounded-full border border-line bg-surface px-3 py-1.5 font-medium text-ink-2">
                         <span className="mr-1.5 tabular-nums text-accent-ink">{i + 1}</span>
-                        {s}
+                        {parseStep(s).label}
                       </span>
                     </li>
                   ))}

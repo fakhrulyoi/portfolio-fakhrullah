@@ -49,3 +49,10 @@ export function formatDateTime(iso: string | null | undefined) {
     timeZone: "Asia/Kuala_Lumpur",
   }).format(new Date(iso));
 }
+
+/** Process steps are stored as "Label" or "Label: short detail". */
+export function parseStep(raw: string) {
+  const i = raw.indexOf(":");
+  if (i > 0 && i <= 40) return { label: raw.slice(0, i).trim(), detail: raw.slice(i + 1).trim() };
+  return { label: raw.trim(), detail: "" };
+}

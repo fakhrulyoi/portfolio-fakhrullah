@@ -1,15 +1,15 @@
 import { ArrowDown, Download, MapPin, FileText } from "lucide-react";
-import { formatDateTime, formatMonth, formatRange, storageUrl } from "@/lib/format";
+import { formatDateTime, formatMonth, formatRange, parseStep, storageUrl } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "../header";
-import { DeliveryFlow } from "../flow";
 import { ExperienceItem } from "../experience-item";
 import { ProjectCard } from "../project-card";
 import { ContactForm } from "../contact-form";
 import { externalProps, type TemplateProps } from "../model";
 import { JsonLd } from "./shared";
-import { BackToTop, Reveal, RiseWords, ScrollProgress, SpotlightTracker, TimelineRail } from "../motion";
+import { BackToTop, BigEmail, Crosshair, Magnetic, Reveal, RiseWords, ScrollProgress, SpotlightTracker, TimelineRail } from "../motion";
+import { Pipeline } from "../pipeline";
 
 function Section({
   id,
@@ -63,6 +63,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
   const { settings, experiences, projects, skill_groups, education } = data;
   const { profile, about, resume, contact, theme } = settings;
   const { show, nav, photo, contactLinks, hasResume } = model;
+  const steps = profile.process_steps.map(parseStep);
 
   return (
     <div id="top" className="min-h-dvh bg-paper text-ink">
@@ -74,79 +75,90 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
       </a>
       <ScrollProgress />
       <SpotlightTracker />
-      <SiteHeader name={profile.short_name || profile.full_name} nav={nav} allowToggle={theme.allow_toggle} banner={previewBanner} />
+      <SiteHeader
+        name={profile.short_name || profile.full_name}
+        nav={steps.length > 1 ? [{ id: "process", label: "Process" }, ...nav] : nav}
+        allowToggle={theme.allow_toggle}
+        banner={previewBanner}
+      />
 
       <main id="main">
-        {/* Hero */}
-        <section aria-label="Introduction" className="relative">
-          <div aria-hidden className="blueprint pointer-events-none absolute inset-0 -top-16" />
-          <div className="relative mx-auto grid max-w-6xl items-start gap-14 px-5 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-20">
-            <div>
-              <div className="rise-b flex flex-wrap items-center gap-4" style={{ "--d": 0 } as React.CSSProperties}>
-                {photo && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo}
-                    alt={`Portrait of ${profile.full_name}`}
-                    width={64}
-                    height={64}
-                    className="size-16 rounded-full border border-line object-cover"
-                  />
+        {/* Hero: drafting table */}
+        <section aria-label="Introduction" className="relative overflow-hidden">
+          <div aria-hidden className="blueprint pointer-events-none absolute inset-0" />
+          <Crosshair />
+          <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
+            <div className="rise-b flex flex-wrap items-center gap-4" style={{ "--d": 0 } as React.CSSProperties}>
+              {photo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photo} alt={`Portrait of ${profile.full_name}`} width={56} height={56} className="size-14 rounded-full border border-line object-cover" />
+              )}
+              {profile.availability.enabled && profile.availability.text && (
+                <p className="inline-flex items-center gap-2 rounded-2xl border border-line bg-surface/80 px-3 py-1.5 text-[13px] text-ink-2 backdrop-blur sm:rounded-full">
+                  <span className="relative flex size-2">
+                    <span className="absolute inset-0 rounded-full bg-success opacity-30 motion-safe:animate-ping" />
+                    <span className="relative size-2 rounded-full bg-success" />
+                  </span>
+                  {profile.availability.text}
+                </p>
+              )}
+            </div>
+
+            <h1 className="mt-8 text-balance text-[clamp(2.75rem,7.4vw,6.75rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-ink">
+              <RiseWords text={profile.full_name} start={120} step={80} />
+            </h1>
+
+            {/* Dimension line, like a technical drawing */}
+            {(profile.title || profile.location) && (
+              <div className="mt-8 flex items-center gap-3 sm:mt-10" aria-label={[profile.title, profile.location].filter(Boolean).join(", ")}>
+                <span aria-hidden className="dim-tick h-4 w-px bg-ink-2" />
+                <span aria-hidden className="dim-l h-px flex-1 bg-ink-2/60" />
+                <p className="rise-b shrink-0 text-center text-[15px] text-ink-2 sm:text-lg" style={{ "--d": 900 } as React.CSSProperties}>
+                  <span className="font-medium text-ink">{profile.title}</span>
+                  {profile.title && profile.location && <span className="mx-2 text-line-strong">/</span>}
+                  {profile.location}
+                </p>
+                <span aria-hidden className="dim-r h-px flex-1 bg-ink-2/60" />
+                <span aria-hidden className="dim-tick h-4 w-px bg-ink-2" />
+              </div>
+            )}
+
+            <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
+              <div>
+                {profile.headline && (
+                  <p className="rise-b max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.015em] text-ink sm:text-[1.75rem]" style={{ "--d": 1050 } as React.CSSProperties}>
+                    {profile.headline}
+                  </p>
                 )}
-                {profile.availability.enabled && profile.availability.text && (
-                  <p className="inline-flex items-center gap-2 rounded-2xl border border-line bg-surface px-3 py-1.5 text-[13px] sm:rounded-full text-ink-2">
-                    <span className="relative flex size-2">
-                      <span className="absolute inset-0 rounded-full bg-success opacity-30 motion-safe:animate-ping" />
-                      <span className="relative size-2 rounded-full bg-success" />
-                    </span>
-                    {profile.availability.text}
+                {profile.intro && (
+                  <p className="rise-b prose-measure mt-5 text-[17px] leading-relaxed text-ink-2" style={{ "--d": 1150 } as React.CSSProperties}>
+                    {profile.intro}
                   </p>
                 )}
               </div>
-              <h1 className="mt-8 text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.035em] text-ink sm:text-[3.5rem] lg:text-[4rem]">
-                <RiseWords text={profile.full_name} start={120} />
-              </h1>
-              {profile.title && (
-                <p className="rise-b mt-4 text-xl text-muted sm:text-2xl" style={{ "--d": 450 } as React.CSSProperties}>
-                  {profile.title}
-                  {profile.location && <span>, {profile.location}</span>}
-                </p>
-              )}
-              {profile.headline && (
-                <p className="rise-b mt-8 max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[1.625rem]" style={{ "--d": 560 } as React.CSSProperties}>
-                  {profile.headline}
-                </p>
-              )}
-              {profile.intro && (
-                <p className="rise-b prose-measure mt-5 text-[17px] leading-relaxed text-ink-2" style={{ "--d": 660 } as React.CSSProperties}>
-                  {profile.intro}
-                </p>
-              )}
-              <div className="rise-b mt-10 flex flex-wrap gap-3" style={{ "--d": 760 } as React.CSSProperties}>
+              <div className="rise-b flex flex-wrap gap-3 lg:justify-end lg:pt-1.5" style={{ "--d": 1250 } as React.CSSProperties}>
                 {show.projects && (
-                  <a href="#projects" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "press group/cta")}>
-                    View my projects
-                    <ArrowDown className="transition-transform duration-300 group-hover/cta:translate-y-0.5" aria-hidden />
-                  </a>
+                  <Magnetic>
+                    <a href="#projects" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "press group/cta")}>
+                      View my projects
+                      <ArrowDown className="transition-transform duration-300 group-hover/cta:translate-y-0.5" aria-hidden />
+                    </a>
+                  </Magnetic>
                 )}
                 {hasResume && (
-                  <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
-                    <Download aria-hidden />
-                    Download resume
-                  </a>
-                )}
-                {show.contact && (
-                  <a href="#contact" className={buttonVariants({ variant: "ghost", size: "lg" })}>
-                    Contact me
-                  </a>
+                  <Magnetic>
+                    <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
+                      <Download aria-hidden />
+                      Download resume
+                    </a>
+                  </Magnetic>
                 )}
               </div>
             </div>
-            <div className="rise-b" style={{ "--d": 300 } as React.CSSProperties}>
-              <DeliveryFlow steps={profile.process_steps} />
-            </div>
           </div>
         </section>
+
+        {steps.length > 1 && <Pipeline steps={steps} />}
 
         {show.about && (
           <Section id="about" title="About">
@@ -287,9 +299,16 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.contact && (
           <Section id="contact" title="Contact" intro={contact.intro || undefined}>
+            {profile.email && (
+              <div className="mb-14">
+                <BigEmail email={profile.email} />
+              </div>
+            )}
             <div className="grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
               <ul className="space-y-1">
-                {contactLinks.map(({ href, label, icon: Icon, name }) => (
+                {contactLinks
+                  .filter((l) => l.name !== "Email")
+                  .map(({ href, label, icon: Icon, name }) => (
                   <li key={href}>
                     <a
                       href={href}

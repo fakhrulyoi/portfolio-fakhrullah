@@ -40,7 +40,7 @@ export const profileSchema = z.object({
   title: text(120),
   headline: text(220),
   intro: text(600),
-  process_steps: list(8, 40),
+  process_steps: list(8, 200),
   location: text(120),
   availability: z.object({ enabled: z.boolean(), text: text(140) }),
   photo_path: storagePath,

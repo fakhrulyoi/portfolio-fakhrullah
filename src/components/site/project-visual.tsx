@@ -30,7 +30,7 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
           ))}
           {box(40, 98, 208, 102, K)}
           {[30, 52, 40, 70, 58, 82].map((h, i) => (
-            <rect key={i} x={56 + i * 30} y={186 - h} width={16} height={h} rx={3} fill={i === 5 ? A : L} />
+            <rect key={i} x={56 + i * 30} y={186 - h} width={16} height={h} rx={3} fill={i === 5 ? A : L} className="pv-bar" style={{ "--i": i } as React.CSSProperties} />
           ))}
           {box(260, 98, 100, 102, K)}
           {[0, 1, 2, 3].map((i) => <g key={i}>{bar(272, 114 + i * 20, 76 - i * 10)}</g>)}
@@ -55,6 +55,7 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
                   rx={5}
                   fill={(r * 5 + c) % 7 === 2 ? A : (r + c) % 3 === 0 ? K : S}
                   stroke={L}
+                  className={(r * 5 + c) % 7 === 2 ? "pv-pulse" : undefined}
                 />
               ))}
             </g>
@@ -76,7 +77,7 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
           ].map(([w, f], i) => (
             <g key={i}>
               {bar(40, 98 + i * 34, 60)}
-              <rect x={112} y={94 + i * 34} width={(w as number) * 2.4} height={14} rx={4} fill={f as string} />
+              <rect x={112} y={94 + i * 34} width={(w as number) * 2.4} height={14} rx={4} fill={f as string} className="pv-line" style={{ "--i": i } as React.CSSProperties} />
             </g>
           ))}
         </>
@@ -89,7 +90,7 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
           {box(40, 40, 150, 160, K)}
           {[0, 1, 2, 3, 4].map((r) =>
             [0, 1, 2, 3, 4].map((c) => (
-              <rect key={`${r}${c}`} x={52 + c * 26} y={56 + r * 27} width={20} height={20} rx={4} fill={r === 2 && c === 3 ? A : S} stroke={L} />
+              <rect key={`${r}${c}`} x={52 + c * 26} y={56 + r * 27} width={20} height={20} rx={4} fill={r === 2 && c === 3 ? A : S} stroke={L} className={r === 2 && c === 3 ? "pv-pulse" : undefined} />
             )),
           )}
           {[0, 1, 2].map((i) => (
@@ -108,7 +109,7 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
         <>
           {box(24, 24, 352, 192)}
           {box(40, 40, 200, 120, K)}
-          <path d="M128 84 l28 16 -28 16z" fill={A} />
+          <path d="M128 84 l28 16 -28 16z" fill={A} className="pv-pulse" />
           {bar(40, 174, 160)}
           {bar(40, 190, 110)}
           {[0, 1, 2, 3].map((i) => (
@@ -126,7 +127,9 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
         <>
           {box(110, 20, 180, 200)}
           {bar(130, 44, 90, A)}
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <g key={i}>{bar(130, 66 + i * 16, i % 3 === 2 ? 90 : 140)}</g>)}
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <rect key={i} x={130} y={66 + i * 16} width={i % 3 === 2 ? 90 : 140} height={6} rx={3} fill={L} className="pv-line" style={{ "--i": i } as React.CSSProperties} />
+          ))}
           {box(130, 196 - 10, 60, 14, K, 3)}
         </>
       );
@@ -147,7 +150,8 @@ export function ProjectVisual({ kind }: { kind: Project["visual"] }) {
             </g>
           ))}
           <path d="M116 118 H122 V74 H128 M122 118 V162 H128 M212 74 H224 V118 H236 M212 162 H224 V118" fill="none" stroke={L} strokeWidth={1.5} />
-          <circle cx={336} cy={118} r={16} fill="none" stroke={A} strokeWidth={1.5} />
+          <path d="M116 118 H122 V74 H128 M122 118 V162 H128 M212 74 H224 V118 H236 M212 162 H224 V118" fill="none" stroke={A} strokeWidth={1.5} strokeDasharray="4 12" className="pv-dash" opacity={0.9} />
+          <circle cx={336} cy={118} r={16} fill="none" stroke={A} strokeWidth={1.5} className="pv-pulse" />
           <path d="M329 118 l5 5 9 -10" fill="none" stroke={A} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         </>
       );

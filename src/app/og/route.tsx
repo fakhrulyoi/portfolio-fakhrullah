@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getPublishedPortfolio } from "@/lib/data";
+import { parseStep } from "@/lib/format";
 
 export const revalidate = 3600;
 
@@ -11,7 +12,7 @@ export async function GET() {
   const title = s?.profile.title || "";
   const headline = s?.profile.headline || "";
   const accent = s?.theme.accent || "#2450D8";
-  const steps = (s?.profile.process_steps ?? []).slice(0, 6);
+  const steps = (s?.profile.process_steps ?? []).slice(0, 6).map((x) => parseStep(x).label);
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", background: "#f7f7f5", padding: 72, fontFamily: "sans-serif" }}>
