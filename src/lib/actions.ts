@@ -54,7 +54,10 @@ export async function signIn(_: unknown, formData: FormData): Promise<ActionResu
     return { ok: false, error: "This account's email isn't confirmed yet. Confirm it in Supabase (Authentication > Users) and try again." };
   }
   if (error?.status === 429) return { ok: false, error: "Too many sign-in attempts. Wait a few minutes and try again." };
-  if (error || !data.user) return { ok: false, error: "Email or password is incorrect." };
+  if (error?.code === "invalid_credentials" || (!error && !data.user)) {
+    return { ok: false, error: "Email or password is incorrect." };
+  }
+  if (error) return { ok: false, error: `Sign-in failed: ${error.message}${error.code ? ` (${error.code})` : ""}` };
 
   const { data: adminRow } = await supabase.from("admins").select("user_id").eq("user_id", data.user.id).maybeSingle();
   if (!adminRow) {
