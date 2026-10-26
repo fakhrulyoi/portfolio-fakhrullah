@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { getPublishedPortfolio } from "@/lib/data";
 import { storageUrl } from "@/lib/format";
 import { Portfolio } from "@/components/site/portfolio";
@@ -43,6 +44,8 @@ function Notice({ title, children }: { title: string; children: React.ReactNode 
 export default async function HomePage() {
   const r = await getPublishedPortfolio();
   if (r.status === "ok") return <Portfolio data={r.data} />;
+  // Don't cache a "not ready" page: render it fresh until content loads.
+  await connection();
   if (r.status === "unconfigured")
     return (
       <Notice title="Almost there">
