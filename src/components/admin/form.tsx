@@ -189,7 +189,7 @@ function LinksEditor({ value, onChange, errors, base }: { value: { label: string
   return (
     <div className="space-y-2">
       {value.map((l, i) => (
-        <div key={i} className="grid gap-1.5 sm:grid-cols-[10rem_1fr_auto]">
+        <div key={i} className="grid grid-cols-1 gap-1.5 sm:grid-cols-[10rem_1fr_auto]">
           <Input placeholder="Label, e.g. Portfolio" aria-label={`Link ${i + 1} label`} value={l.label} maxLength={40} onChange={(e) => onChange(value.map((v, k) => (k === i ? { ...v, label: e.target.value } : v)))} />
           <Input placeholder="https://" aria-label={`Link ${i + 1} URL`} value={l.url} type="url" onChange={(e) => onChange(value.map((v, k) => (k === i ? { ...v, url: e.target.value } : v)))} aria-invalid={Boolean(errors[`${base}.${i}.url`])} />
           <Button type="button" variant="ghost" size="icon" aria-label={`Remove link ${i + 1}`} onClick={() => onChange(value.filter((_, k) => k !== i))}>
@@ -337,7 +337,7 @@ export function FieldControl({ field, values, setValue, errors }: { field: Exclu
     }
     case "choice":
       control = (
-        <div role="radiogroup" aria-labelledby={`${id}-label`} className="grid gap-3 sm:grid-cols-3">
+        <div role="radiogroup" aria-labelledby={`${id}-label`} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {field.options.map((o) => {
             const checked = v === o.value;
             return (
@@ -469,7 +469,7 @@ export function AdminForm({
 
   return (
     <form onSubmit={submit} noValidate className="space-y-6">
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {fields.map((f) => {
           if (f.showIf && !f.showIf(values)) return null;
           if (f.type === "heading")

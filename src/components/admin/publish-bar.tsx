@@ -28,10 +28,13 @@ export function PublishBar({ hasChanges, lastPublished, compact = false }: { has
     });
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      <p className={`mr-2 items-center gap-2 text-[13px] text-muted ${compact ? "hidden" : "flex"}`} aria-live="polite">
-        <span className={`size-2 rounded-full ${hasChanges ? "bg-amber-500" : "bg-success"}`} aria-hidden />
-        {hasChanges ? "Unpublished changes" : lastPublished ? `Live, published ${formatDateTime(lastPublished)}` : "Not published yet"}
+    <div className="flex items-center justify-end gap-2">
+      <p className={`mr-auto items-center gap-2 text-[13px] text-muted sm:mr-2 ${compact ? "hidden" : "flex"}`} aria-live="polite">
+        <span className={`size-2 shrink-0 rounded-full ${hasChanges ? "bg-amber-500" : "bg-success"}`} aria-hidden />
+        <span className="hidden sm:inline">
+          {hasChanges ? "Unpublished changes" : lastPublished ? `Live, published ${formatDateTime(lastPublished)}` : "Not published yet"}
+        </span>
+        <span className="sm:hidden">{hasChanges ? "Unpublished" : lastPublished ? "Live" : "Draft"}</span>
       </p>
       {!compact && (
         <Link href="/admin/preview" className={buttonVariants({ variant: "outline", size: "sm" })}>

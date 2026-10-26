@@ -11,7 +11,7 @@ export function ExperienceItem({ e }: { e: Experience }) {
   const items = open ? e.highlights : e.highlights.slice(0, PREVIEW);
   const meta = [e.employment_type, e.work_mode, e.location].filter(Boolean).join(", ");
   return (
-    <li className="relative grid gap-2 pb-12 pl-7 last:pb-0 md:grid-cols-[13rem_1fr] md:gap-10 md:pl-0">
+    <li className="relative grid grid-cols-1 gap-2 pb-12 pl-7 last:pb-0 md:grid-cols-[13rem_1fr] md:gap-10 md:pl-0">
       <span
         aria-hidden
         className="timeline-dot absolute left-[-5px] top-1.5 z-10 size-[11px] rounded-full border-2 border-line-strong bg-paper md:left-[calc(15.5rem-5px)]"

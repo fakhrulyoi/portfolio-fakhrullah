@@ -61,7 +61,7 @@ export default async function Overview() {
 
       <section aria-labelledby="quick" className="mt-10">
         <h2 id="quick" className="mb-3 font-semibold">Quick actions</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {actions.map(({ href, label, desc, icon: Icon }) => (
             <Link
               key={href}
@@ -81,7 +81,7 @@ export default async function Overview() {
         </div>
       </section>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
         <section aria-labelledby="todo">
           <div className="mb-3 flex items-center gap-3">
             <h2 id="todo" className="font-semibold">Finish your profile</h2>

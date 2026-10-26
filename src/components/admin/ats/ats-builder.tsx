@@ -159,7 +159,7 @@ export function AtsBuilder({ source, initial, ready }: { source: AtsSource; init
   }
 
   return (
-    <div data-wide className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div data-wide className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="min-w-0 space-y-6">
         {!ready && (
           <p role="alert" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm leading-relaxed">

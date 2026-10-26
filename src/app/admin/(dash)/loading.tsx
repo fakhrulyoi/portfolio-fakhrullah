@@ -5,7 +5,7 @@ export default function Loading() {
         <div className="skeleton h-8 w-56" />
         <div className="skeleton h-4 w-full max-w-lg" />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[0, 1, 2].map((i) => (
           <div key={i} className="skeleton h-24" />
         ))}

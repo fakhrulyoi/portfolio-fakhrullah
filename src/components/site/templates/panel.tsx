@@ -154,7 +154,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
             <div className="divide-y divide-line border-t border-line">
               {show.about && (
                 <Block id="about" title="About">
-                  <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_17rem]">
+                  <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_17rem]">
                     <div className="max-w-2xl space-y-4 text-[16px] leading-relaxed text-ink-2">
                       {about.summary.map((p, i) => (
                         <p key={i}>{p}</p>
@@ -186,7 +186,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
                     </div>
                   </div>
                   {about.strengths.length > 0 && (
-                    <ul className="mt-10 grid gap-3 sm:grid-cols-2">
+                    <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {about.strengths.map((s) => (
                         <li key={s} className="rounded-xl border border-line bg-surface px-4 py-3 text-[14px] text-ink-2">
                           {s}
@@ -220,7 +220,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
 
               {show.projects && (
                 <Block id="projects" title="Projects" intro="Open a project to see exactly what I was responsible for.">
-                  <div className="grid gap-5 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     {projects.map((p, i) => (
                       <div key={p.id} className={cn(i === 0 && projects.length > 2 && "md:col-span-2")}>
                         <ProjectCard p={p} />
@@ -232,7 +232,7 @@ export function PanelTemplate({ data, model, resumeHref, previewBanner, contactD
 
               {show.skills && (
                 <Block id="skills" title="Skills">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {skill_groups.map((g) => (
                       <div key={g.id} className="rounded-xl border border-line bg-surface p-5">
                         <h3 className="flex items-center gap-2 text-sm font-semibold">

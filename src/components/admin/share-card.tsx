@@ -20,7 +20,7 @@ export function ShareCard({ url, live }: { url: string; live: boolean }) {
         {live && <span className="absolute inset-0 rounded-full bg-success opacity-40 motion-safe:animate-ping" />}
         <span className={`relative size-2.5 rounded-full ${live ? "bg-success" : "bg-line-strong"}`} />
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-[calc(100%-2rem)] sm:basis-auto">
         <p className="text-[12px] text-muted">{live ? "Your portfolio is live at" : "Your portfolio address (not published yet)"}</p>
         <p className="truncate font-medium">{url.replace(/^https?:\/\//, "")}</p>
       </div>

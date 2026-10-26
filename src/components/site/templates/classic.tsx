@@ -123,7 +123,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
               </div>
             )}
 
-            <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
+            <div className="mt-10 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
               <div>
                 {profile.headline && (
                   <p className="rise-b max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.015em] text-ink sm:text-[1.75rem]" style={{ "--d": 1050 } as React.CSSProperties}>
@@ -162,7 +162,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.about && (
           <Section id="about" title="About">
-            <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-20">
+            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-20">
               <div className="prose-measure space-y-5 text-[17px] leading-relaxed text-ink-2">
                 {about.summary.map((p, i) => (
                   <p key={i}>{p}</p>
@@ -179,7 +179,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
               </div>
             </div>
             {(about.interests.length > 0 || about.languages.length > 0 || about.activities.length > 0) && (
-              <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3">
+              <div className="mt-14 grid grid-cols-1 gap-10 border-t border-line pt-10 md:grid-cols-3">
                 <SmallList title="Roles I'm interested in" items={about.interests} />
                 <SmallList title="Languages" items={about.languages} />
                 <SmallList title="Leadership and activities" items={about.activities} />
@@ -205,7 +205,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
             title="Projects"
             intro="Selected work from my role, internships and studies. Open a project to see exactly what I was responsible for."
           >
-            <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
               {projects.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 2) * 120}>
                   <ProjectCard p={p} />
@@ -217,7 +217,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.skills && (
           <Section id="skills" title="Skills">
-            <dl className="grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            <dl className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
               {skill_groups.map((g, gi) => (
                 <Reveal key={g.id} delay={(gi % 3) * 90} className="border-t border-line pt-5">
                   <dt className="text-sm font-semibold text-ink">{g.name}</dt>
@@ -240,7 +240,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
           <Section id="education" title="Education">
             <ol className="divide-y divide-line border-y border-line">
               {education.map((e) => (
-                <li key={e.id} className="grid gap-2 py-7 md:grid-cols-[13rem_1fr] md:gap-10">
+                <li key={e.id} className="grid grid-cols-1 gap-2 py-7 md:grid-cols-[13rem_1fr] md:gap-10">
                   <p className="text-sm tabular-nums text-muted">{formatRange(e.start_date, e.end_date)}</p>
                   <div>
                     <h3 className="text-lg font-semibold tracking-tight">{e.qualification}</h3>
@@ -264,7 +264,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.resume && (
           <Section id="resume" title="Resume">
-            <div className="grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-5">
                   <FileText className="mt-0.5 size-5 shrink-0 text-muted" aria-hidden />
@@ -304,7 +304,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                 <BigEmail email={profile.email} />
               </div>
             )}
-            <div className="grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
               <ul className="space-y-1">
                 {contactLinks
                   .filter((l) => l.name !== "Email")

@@ -78,7 +78,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[76rem] gap-10 px-0 py-0 sm:px-6 sm:py-10 lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-14 print:block print:p-0">
+      <div className="mx-auto grid grid-cols-1 max-w-[76rem] gap-10 px-0 py-0 sm:px-6 sm:py-10 lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-14 print:block print:p-0">
         <aside className="hidden lg:block print:hidden">
           <DocToc items={toc} />
         </aside>
@@ -151,7 +151,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
                 {about.strengths.length > 0 && (
                   <>
                     <h3 className="mt-9 text-sm font-semibold">Strengths</h3>
-                    <ul className="mt-3 grid gap-x-8 gap-y-2 text-[15px] text-ink-2 sm:grid-cols-2">
+                    <ul className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 text-[15px] text-ink-2 sm:grid-cols-2">
                       {about.strengths.map((s) => (
                         <li key={s} className="flex gap-2.5">
                           <span aria-hidden className="mt-[0.6em] size-1 shrink-0 rounded-full bg-accent" />
@@ -172,7 +172,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
                     )
                       .filter(([, v]) => v.length)
                       .map(([k, v]) => (
-                        <div key={k} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-6">
+                        <div key={k} className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-6">
                           <dt className="text-muted">{k}</dt>
                           <dd className="text-ink-2">
                             {Array.isArray(v) ? (
@@ -263,7 +263,7 @@ export function DocumentTemplate({ data, model, resumeHref, previewBanner, conta
                             </figcaption>
                           </figure>
                         )}
-                        <dl className="mt-5 grid gap-x-6 gap-y-3 text-[15px] sm:grid-cols-[7rem_1fr]">
+                        <dl className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 text-[15px] sm:grid-cols-[7rem_1fr]">
                           {p.role && (
                             <>
                               <dt className="text-muted">My role</dt>

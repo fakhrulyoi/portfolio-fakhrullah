@@ -123,7 +123,7 @@ export function ContactForm({ disabled = false }: { disabled?: boolean }) {
       {SITE_KEY && (
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" onReady={renderTurnstile} />
       )}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="contact-name">Name</Label>
           <Input {...field("name")} autoComplete="name" required maxLength={120} />
