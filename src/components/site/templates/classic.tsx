@@ -1,8 +1,10 @@
-import { ArrowDown, Download, MapPin, FileText, UserRound, BriefcaseBusiness, FolderKanban, Cpu, GraduationCap, Send } from "lucide-react";
+import { ArrowDown, Download, MapPin, FileText, Trophy, UserRound, BriefcaseBusiness, FolderKanban, Cpu, GraduationCap, Send } from "lucide-react";
 import { iconFor, iconMap, groupIcon, pick, spriteFor } from "@/lib/skill-icons";
 import { BrandSprite, SkillIcon } from "../skill-icon";
 import { IconMarquee } from "../icon-marquee";
 import { HeroFloat } from "../hero-float";
+import { HeroDiagram } from "../hero-diagram";
+import { MobileDock } from "../mobile-dock";
 import { SkillsShowcase } from "../skills-showcase";
 import { CountRing, Scramble, ScrollLit } from "../motion-plus";
 import { formatDateTime, formatMonth, formatRange, parseStep, storageUrl } from "@/lib/format";
@@ -107,7 +109,13 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
     groups: skill_groups.filter((g) => g.items.includes(name)).map((g) => g.id),
   }));
   const groups = skill_groups.map((g) => ({ id: g.id, name: g.name, icon: groupIcon(g.name), items: g.items.map((n) => ({ name: n, spec: icons[n] })) }));
-  const [lead, ...restSummary] = about.summary;
+  const awards = projects.flatMap((p) => p.awards.map((award) => ({ award, project: p.title })));
+  // Keep the large "lit" lead short: the first sentence or two, the rest as normal text.
+  const [firstPara = "", ...otherParas] = about.summary;
+  const sentences = firstPara.split(/(?<=[.!?])\s+/);
+  let lead = "";
+  while (sentences.length && (lead.length < 60 || !lead)) lead = `${lead} ${sentences.shift()}`.trim();
+  const restSummary = [sentences.join(" "), ...otherParas].filter(Boolean);
 
   return (
     <div id="top" className="min-h-dvh bg-paper text-ink">
@@ -122,7 +130,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
       <SpotlightTracker />
       <SiteHeader
         name={profile.short_name || profile.full_name}
-        nav={steps.length > 1 ? [{ id: "process", label: "Process" }, ...nav] : nav}
+        nav={[...(steps.length > 1 ? [{ id: "process", label: "Process" }] : []), ...nav.filter((n) => !(n.id === "resume" && show.contact))]}
         allowToggle={theme.allow_toggle}
         banner={previewBanner}
       />
@@ -132,7 +140,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         <section aria-label="Introduction" className="relative overflow-hidden">
           <div aria-hidden className="blueprint pointer-events-none absolute inset-0" />
           <Crosshair />
-          <HeroFloat items={branded.slice(0, 6).map((name) => ({ name, spec: icons[name] }))} />
+          <HeroFloat items={branded.slice(0, 3).map((name) => ({ name, spec: icons[name] }))} />
           <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
             <div className="rise-b flex flex-wrap items-center gap-4" style={{ "--d": 0 } as React.CSSProperties}>
               {photo && (
@@ -151,7 +159,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
             </div>
 
             <h1 className="mt-8 text-balance text-[clamp(2.75rem,7.4vw,6.75rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-ink">
-              <RiseWords text={profile.full_name} start={120} step={80} />
+              <RiseWords text={profile.full_name} start={60} step={60} />
             </h1>
 
             {/* Dimension line, like a technical drawing */}
@@ -159,8 +167,8 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
               <div className="mt-8 flex items-center gap-3 sm:mt-10" aria-label={[profile.title, profile.location].filter(Boolean).join(", ")}>
                 <span aria-hidden className="dim-tick h-4 w-px bg-ink-2" />
                 <span aria-hidden className="dim-l h-px flex-1 bg-ink-2/60" />
-                <p className="rise-b shrink-0 text-center text-[15px] text-ink-2 sm:text-lg" style={{ "--d": 900 } as React.CSSProperties}>
-                  <Scramble text={profile.title} delay={1000} className="font-medium text-ink" />
+                <p className="rise-b shrink-0 text-center text-[15px] text-ink-2 sm:text-lg" style={{ "--d": 360 } as React.CSSProperties}>
+                  <Scramble text={profile.title} delay={450} className="font-medium text-ink" />
                   {profile.title && profile.location && <span className="mx-2 text-line-strong">/</span>}
                   {profile.location}
                 </p>
@@ -169,36 +177,65 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
               </div>
             )}
 
-            <div className="mt-10 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
+            <div className="mt-10 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-14">
               <div>
                 {profile.headline && (
-                  <p className="rise-b max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.015em] text-ink sm:text-[1.75rem]" style={{ "--d": 1050 } as React.CSSProperties}>
+                  <p className="rise-b max-w-2xl text-[1.375rem] font-medium leading-snug tracking-[-0.015em] text-ink sm:text-[1.75rem]" style={{ "--d": 420 } as React.CSSProperties}>
                     {profile.headline}
                   </p>
                 )}
                 {profile.intro && (
-                  <p className="rise-b prose-measure mt-5 text-[17px] leading-relaxed text-ink-2" style={{ "--d": 1150 } as React.CSSProperties}>
+                  <p className="rise-b prose-measure mt-5 text-[17px] leading-relaxed text-ink-2" style={{ "--d": 480 } as React.CSSProperties}>
                     {profile.intro}
                   </p>
                 )}
+                <div className="rise-b mt-8 flex flex-wrap gap-3" style={{ "--d": 540 } as React.CSSProperties}>
+                  {show.projects && (
+                    <Magnetic>
+                      <a href="#projects" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "press group/cta")}>
+                        View my projects
+                        <ArrowDown className="transition-transform duration-300 group-hover/cta:translate-y-0.5" aria-hidden />
+                      </a>
+                    </Magnetic>
+                  )}
+                  {hasResume ? (
+                    <Magnetic>
+                      <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
+                        <Download aria-hidden />
+                        Download resume
+                      </a>
+                    </Magnetic>
+                  ) : (
+                    show.contact && (
+                      <a href="#contact" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
+                        <Send aria-hidden />
+                        Contact me
+                      </a>
+                    )
+                  )}
+                </div>
+                {awards.length > 0 && (
+                  <ul className="mt-10 flex flex-wrap gap-3" aria-label="Recognition">
+                    {awards.map((a, i) => (
+                      <li
+                        key={a.award}
+                        className="award rise-b relative flex max-w-sm items-center gap-3 overflow-hidden rounded-2xl border border-line bg-surface/90 py-2.5 pl-2.5 pr-4 backdrop-blur"
+                        style={{ "--d": 650 + i * 90, "--i": i } as React.CSSProperties}
+                      >
+                        <span className="award-medal flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,#d97706_14%,transparent)] text-[#b45309] dark:text-[#fbbf24]">
+                          <Trophy className="size-5" aria-hidden />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[14px] font-semibold leading-snug text-ink">{a.award}</span>
+                          <span className="block truncate text-[12.5px] text-muted">{a.project}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div className="rise-b flex flex-wrap gap-3 lg:justify-end lg:pt-1.5" style={{ "--d": 1250 } as React.CSSProperties}>
-                {show.projects && (
-                  <Magnetic>
-                    <a href="#projects" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "press group/cta")}>
-                      View my projects
-                      <ArrowDown className="transition-transform duration-300 group-hover/cta:translate-y-0.5" aria-hidden />
-                    </a>
-                  </Magnetic>
-                )}
-                {hasResume && (
-                  <Magnetic>
-                    <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "press")}>
-                      <Download aria-hidden />
-                      Download resume
-                    </a>
-                  </Magnetic>
-                )}
+              <div className="rise-b mx-auto hidden w-full max-w-xl md:block lg:max-w-none" style={{ "--d": 300 } as React.CSSProperties}>
+                <HeroDiagram />
               </div>
             </div>
           </div>
@@ -317,7 +354,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
           </Section>
         )}
 
-        {show.resume && (
+        {show.resume && !show.contact && (
           <Section id="resume" title="Resume">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
               <div className="flex flex-col gap-4">
@@ -368,6 +405,33 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
               </div>
             )}
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
+              <div>
+              {show.resume && (
+                <div id="resume" className="resume-card group relative mb-6 overflow-hidden rounded-2xl border border-line bg-surface p-5">
+                  <div className="flex items-start gap-4">
+                    <span aria-hidden className="relative mt-0.5 h-14 w-11 shrink-0">
+                      <span className="absolute inset-0 rotate-[-8deg] rounded-md border border-line bg-sunken transition-transform duration-300 group-hover:rotate-[-14deg]" />
+                      <span className="absolute inset-0 flex items-center justify-center rounded-md border border-line bg-surface shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                        <FileText className="size-5 text-accent-ink" />
+                      </span>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-ink">Resume</p>
+                      <p className="truncate text-[13px] text-muted">
+                        {resume.updated_at ? `Updated ${formatDateTime(resume.updated_at)}` : resume.file_name || "PDF"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <a href={`${resumeHref}?download=1`} className={cn(buttonVariants({ variant: "primary", size: "sm" }), "press flex-1")}>
+                      <Download aria-hidden /> Download PDF
+                    </a>
+                    <a href={resumeHref} target="_blank" rel="noopener" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                      Open
+                    </a>
+                  </div>
+                </div>
+              )}
               <ul className="space-y-1">
                 {contactLinks
                   .filter((l) => l.name !== "Email")
@@ -391,6 +455,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                   </li>
                 )}
               </ul>
+              </div>
               {contact.form_enabled ? (
                 <ContactForm disabled={contactDisabled} />
               ) : (
@@ -410,7 +475,10 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         </div>
       </footer>
 
-      <BackToTop />
+      <div className="hidden lg:block">
+        <BackToTop />
+      </div>
+      <MobileDock resumeHref={hasResume ? resumeHref : undefined} showContact={show.contact} />
       <JsonLd data={model.personLd} />
     </div>
   );

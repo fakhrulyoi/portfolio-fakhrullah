@@ -4,9 +4,9 @@ import type { IconSpec } from "@/lib/skill-icons";
 import { SkillIcon } from "./skill-icon";
 
 const SPOTS = [
-  { x: 78, y: 12, d: 0.6, s: 1 },
-  { x: 91, y: 24, d: 1, s: 0.85 },
-  { x: 86, y: 70, d: 0.8, s: 1.05 },
+  { x: 79, y: 9, d: 0.6, s: 1 },
+  { x: 92, y: 17, d: 1, s: 0.85 },
+  { x: 97, y: 36, d: 0.8, s: 0.75 },
   { x: 71, y: 84, d: 0.45, s: 0.8 },
   { x: 95, y: 88, d: 1.2, s: 0.9 },
   { x: 62, y: 93, d: 0.7, s: 0.75 },

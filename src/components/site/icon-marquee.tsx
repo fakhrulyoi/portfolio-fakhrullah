@@ -18,7 +18,7 @@ export function IconMarquee({ items, label }: { items: { name: string; spec: Ico
         <div key={r} aria-hidden className={`marquee-row flex w-max gap-3 ${r ? "marquee-rev mt-3" : ""}`}>
           {[0, 1].map((copy) => (
             <div key={copy} className="flex shrink-0 gap-3 pr-3">
-              {row.concat(row).map((i, k) => (
+              {(row.length < 9 ? row.concat(row) : row).map((i, k) => (
                 <span
                   key={`${copy}-${k}`}
                   className="marquee-item inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3.5 py-2 text-[14px] font-medium text-ink-2"
