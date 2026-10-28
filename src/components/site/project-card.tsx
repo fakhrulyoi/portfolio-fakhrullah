@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } 
 import { ProjectVisual } from "./project-visual";
 import type { Project } from "@/lib/schemas";
 import { storageUrl } from "@/lib/format";
+import type { IconSpec } from "@/lib/skill-icons";
+import { TechChip } from "./skill-icon";
 
 function Links({ p }: { p: Project }) {
   const links = [
@@ -52,8 +54,16 @@ function Visual({ p, className }: { p: Project; className?: string }) {
   );
 }
 
-function Tech({ items }: { items: string[] }) {
+function Tech({ items, icons }: { items: string[]; icons?: Record<string, IconSpec> }) {
   if (!items.length) return null;
+  if (icons)
+    return (
+      <ul className="flex flex-wrap gap-1.5" aria-label="Technologies">
+        {items.map((t) => (
+          <TechChip key={t} name={t} spec={icons[t]} />
+        ))}
+      </ul>
+    );
   return (
     <ul className="flex flex-wrap gap-1.5" aria-label="Technologies">
       {items.map((t) => (
@@ -65,13 +75,34 @@ function Tech({ items }: { items: string[] }) {
   );
 }
 
-export function ProjectCard({ p }: { p: Project }) {
+/** Tilts toward the pointer with a soft glare (mouse only, motion allowed). */
+function tiltHandlers() {
+  const move = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== "mouse" || !document.documentElement.classList.contains("motion-ok")) return;
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    el.style.setProperty("--rx", `${((0.5 - y) * 5).toFixed(2)}deg`);
+    el.style.setProperty("--ry", `${((x - 0.5) * 6).toFixed(2)}deg`);
+    el.style.setProperty("--gx", `${(x * 100).toFixed(1)}%`);
+    el.style.setProperty("--gy", `${(y * 100).toFixed(1)}%`);
+  };
+  const leave = (e: React.PointerEvent<HTMLElement>) => {
+    e.currentTarget.style.setProperty("--rx", "0deg");
+    e.currentTarget.style.setProperty("--ry", "0deg");
+  };
+  return { onPointerMove: move, onPointerLeave: leave };
+}
+
+export function ProjectCard({ p, icons }: { p: Project; icons?: Record<string, IconSpec> }) {
   const meta = [p.category, p.year].filter(Boolean).join(", ");
   return (
     <Dialog>
       <article
         data-spotlight
-        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.25)]"
+        {...tiltHandlers()}
+        className="tilt-card group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.25)]"
       >
         <DialogTrigger className="block w-full text-left" aria-label={`Open details for ${p.title}`}>
           <Visual p={p} className="aspect-[5/3] border-b border-line transition-transform" />
@@ -91,7 +122,7 @@ export function ProjectCard({ p }: { p: Project }) {
             </ul>
           )}
           <div className="mt-auto space-y-4 pt-2">
-            <Tech items={p.tech} />
+            <Tech items={p.tech} icons={icons} />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Links p={p} />
               <DialogTrigger className="group/btn inline-flex items-center gap-1 text-sm font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
@@ -134,7 +165,7 @@ export function ProjectCard({ p }: { p: Project }) {
           </div>
         )}
         <div className="mt-6 space-y-4">
-          <Tech items={p.tech} />
+          <Tech items={p.tech} icons={icons} />
           <Links p={p} />
         </div>
         {p.confidential && (

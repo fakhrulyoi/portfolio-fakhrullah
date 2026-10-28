@@ -2,10 +2,12 @@
 import { useId, useState } from "react";
 import type { Experience } from "@/lib/schemas";
 import { formatRange } from "@/lib/format";
+import type { IconSpec } from "@/lib/skill-icons";
+import { TechChip } from "./skill-icon";
 
 const PREVIEW = 4;
 
-export function ExperienceItem({ e }: { e: Experience }) {
+export function ExperienceItem({ e, icons }: { e: Experience; icons?: Record<string, IconSpec> }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const items = open ? e.highlights : e.highlights.slice(0, PREVIEW);
@@ -18,6 +20,15 @@ export function ExperienceItem({ e }: { e: Experience }) {
       />
       <div className="md:pt-0.5">
         <p className="text-sm tabular-nums text-muted">{formatRange(e.start_date, e.end_date, e.is_current)}</p>
+        {e.is_current && icons && (
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--success)_12%,transparent)] px-2.5 py-0.5 text-[12px] font-medium text-success">
+            <span className="relative flex size-1.5">
+              <span className="absolute inset-0 rounded-full bg-success opacity-60 motion-safe:animate-ping" />
+              <span className="relative size-1.5 rounded-full bg-success" />
+            </span>
+            Current role
+          </p>
+        )}
         {meta && <p className="mt-1 text-sm text-muted">{meta}</p>}
       </div>
       <div className="md:pl-10">
@@ -28,9 +39,11 @@ export function ExperienceItem({ e }: { e: Experience }) {
         {e.context && <p className="mt-1 text-[15px] text-ink-2">{e.context}</p>}
         {e.summary && !e.highlights.length && <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{e.summary}</p>}
         {e.highlights.length > 0 && (
-          <ul id={id} className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-ink-2 marker:text-line-strong">
-            {items.map((h) => (
-              <li key={h}>{h}</li>
+          <ul id={id} className="exp-list mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-ink-2 marker:text-line-strong">
+            {items.map((h, i) => (
+              <li key={h} style={{ "--i": i } as React.CSSProperties}>
+                {h}
+              </li>
             ))}
           </ul>
         )}
@@ -45,7 +58,14 @@ export function ExperienceItem({ e }: { e: Experience }) {
             {open ? "Show fewer" : `Show all ${e.highlights.length} responsibilities`}
           </button>
         )}
-        {e.tools.length > 0 && (
+        {e.tools.length > 0 && icons && (
+          <ul className="mt-5 flex flex-wrap gap-1.5" aria-label="Tools and methods">
+            {e.tools.map((t) => (
+              <TechChip key={t} name={t} spec={icons[t]} />
+            ))}
+          </ul>
+        )}
+        {e.tools.length > 0 && !icons && (
           <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Tools and methods">
             {e.tools.map((t) => (
               <li key={t} className="rounded-md border border-line px-2 py-0.5 text-xs text-ink-2">

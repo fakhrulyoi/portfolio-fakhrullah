@@ -48,7 +48,7 @@ export function SiteHeader({
         <a href="#top" className="text-[15px] font-semibold tracking-tight text-ink">
           {name}
         </a>
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {nav.map((n) => (
             <a
               key={n.id}
@@ -64,7 +64,7 @@ export function SiteHeader({
           ))}
           {allowToggle && <ThemeToggle />}
         </nav>
-        <div className="flex items-center gap-1 md:hidden">
+        <div className="flex items-center gap-1 lg:hidden">
           {allowToggle && <ThemeToggle />}
           <button
             type="button"
@@ -79,7 +79,7 @@ export function SiteHeader({
         </div>
       </div>
       {open && (
-        <nav id="mobile-nav" aria-label="Mobile" className="border-t border-line px-5 pb-5 pt-2 md:hidden">
+        <nav id="mobile-nav" aria-label="Mobile" className="border-t border-line px-5 pb-5 pt-2 lg:hidden">
           <ul className="flex flex-col">
             {nav.map((n) => (
               <li key={n.id}>

@@ -1,4 +1,10 @@
-import { ArrowDown, Download, MapPin, FileText } from "lucide-react";
+import { ArrowDown, Download, MapPin, FileText, UserRound, BriefcaseBusiness, FolderKanban, Cpu, GraduationCap, Send } from "lucide-react";
+import { iconFor, iconMap, groupIcon, pick, spriteFor } from "@/lib/skill-icons";
+import { BrandSprite, SkillIcon } from "../skill-icon";
+import { IconMarquee } from "../icon-marquee";
+import { HeroFloat } from "../hero-float";
+import { SkillsShowcase } from "../skills-showcase";
+import { CountRing, Scramble, ScrollLit } from "../motion-plus";
 import { formatDateTime, formatMonth, formatRange, parseStep, storageUrl } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,6 +16,16 @@ import { externalProps, type TemplateProps } from "../model";
 import { JsonLd } from "./shared";
 import { BackToTop, BigEmail, Crosshair, Magnetic, Reveal, RiseWords, ScrollProgress, SpotlightTracker, TimelineRail } from "../motion";
 import { Pipeline } from "../pipeline";
+
+const SECTION_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+  about: UserRound,
+  experience: BriefcaseBusiness,
+  projects: FolderKanban,
+  skills: Cpu,
+  education: GraduationCap,
+  resume: FileText,
+  contact: Send,
+};
 
 function Section({
   id,
@@ -24,13 +40,22 @@ function Section({
   children: React.ReactNode;
   className?: string;
 }) {
+  const Icon = SECTION_ICONS[id];
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={cn("border-t border-line py-20 sm:py-28", className)}>
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="mb-10 max-w-2xl sm:mb-14">
-          <h2 id={`${id}-title`} className="flex items-center gap-3 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[2rem]">
-            <span aria-hidden className="h-[0.9em] w-1 rounded-full bg-accent" />
-            {title}
+          <h2 id={`${id}-title`} className="sec-title flex items-center gap-3.5 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[2.25rem]">
+            {Icon ? (
+              <span aria-hidden className="sec-badge relative flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-fg shadow-[0_10px_24px_-10px_var(--accent)]">
+                <Icon className="size-5" strokeWidth={2} />
+              </span>
+            ) : (
+              <span aria-hidden className="h-[0.9em] w-1 rounded-full bg-accent" />
+            )}
+            <span className="sec-mask block overflow-hidden pb-[0.08em]">
+              <span className="sec-text block">{title}</span>
+            </span>
           </h2>
           {intro && <p className="mt-3 text-[17px] leading-relaxed text-muted">{intro}</p>}
         </Reveal>
@@ -40,6 +65,11 @@ function Section({
       </div>
     </section>
   );
+}
+
+function cgpa(grade: string) {
+  const m = /cgpa\s*([0-4]\.\d{1,2})/i.exec(grade);
+  return m ? Number(m[1]) : null;
 }
 
 function SmallList({ title, items }: { title: string; items: string[] }) {
@@ -65,6 +95,20 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
   const { show, nav, photo, contactLinks, hasResume } = model;
   const steps = profile.process_steps.map(parseStep);
 
+  // Icons for every skill, tool and technology named on the page (resolved here, on the server).
+  const allNames = [...new Set([...skill_groups.flatMap((g) => g.items), ...experiences.flatMap((e) => e.tools), ...projects.flatMap((p) => p.tech)])];
+  const icons = iconMap(allNames);
+  const branded = allNames.filter((n) => icons[n].b);
+  const marquee = [...branded, ...allNames.filter((n) => !icons[n].b && n.length <= 22)].slice(0, 26).map((name) => ({ name, spec: icons[name] }));
+  const orbNames = [...branded, ...skill_groups.flatMap((g) => g.items).filter((n) => !icons[n].b && n.length <= 16)];
+  const orbs = [...new Set(orbNames)].slice(0, 20).map((name) => ({
+    name,
+    spec: icons[name],
+    groups: skill_groups.filter((g) => g.items.includes(name)).map((g) => g.id),
+  }));
+  const groups = skill_groups.map((g) => ({ id: g.id, name: g.name, icon: groupIcon(g.name), items: g.items.map((n) => ({ name: n, spec: icons[n] })) }));
+  const [lead, ...restSummary] = about.summary;
+
   return (
     <div id="top" className="min-h-dvh bg-paper text-ink">
       <a
@@ -73,6 +117,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
       >
         Skip to content
       </a>
+      <BrandSprite items={spriteFor(Object.values(icons))} />
       <ScrollProgress />
       <SpotlightTracker />
       <SiteHeader
@@ -87,6 +132,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         <section aria-label="Introduction" className="relative overflow-hidden">
           <div aria-hidden className="blueprint pointer-events-none absolute inset-0" />
           <Crosshair />
+          <HeroFloat items={branded.slice(0, 6).map((name) => ({ name, spec: icons[name] }))} />
           <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
             <div className="rise-b flex flex-wrap items-center gap-4" style={{ "--d": 0 } as React.CSSProperties}>
               {photo && (
@@ -114,7 +160,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                 <span aria-hidden className="dim-tick h-4 w-px bg-ink-2" />
                 <span aria-hidden className="dim-l h-px flex-1 bg-ink-2/60" />
                 <p className="rise-b shrink-0 text-center text-[15px] text-ink-2 sm:text-lg" style={{ "--d": 900 } as React.CSSProperties}>
-                  <span className="font-medium text-ink">{profile.title}</span>
+                  <Scramble text={profile.title} delay={1000} className="font-medium text-ink" />
                   {profile.title && profile.location && <span className="mx-2 text-line-strong">/</span>}
                   {profile.location}
                 </p>
@@ -158,13 +204,16 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
           </div>
         </section>
 
+        <IconMarquee items={marquee} label="Tools and methods I use" />
+
         {steps.length > 1 && <Pipeline steps={steps} />}
 
         {show.about && (
           <Section id="about" title="About">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-20">
               <div className="prose-measure space-y-5 text-[17px] leading-relaxed text-ink-2">
-                {about.summary.map((p, i) => (
+                {lead && <ScrollLit text={lead} className="lit text-[1.2rem] font-medium leading-[1.6] tracking-[-0.01em] sm:text-[1.35rem]" />}
+                {restSummary.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
                 {education[0] && (
@@ -174,9 +223,25 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                   </p>
                 )}
               </div>
-              <div className="space-y-10">
-                <SmallList title="Strengths" items={about.strengths} />
-              </div>
+              {about.strengths.length > 0 && (
+                <Reveal className="strengths self-start">
+                  <h3 className="text-sm font-semibold text-ink">Strengths</h3>
+                  <ul className="mt-4 space-y-2">
+                    {about.strengths.map((s, i) => (
+                      <li
+                        key={s}
+                        className="strength flex items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 text-[14px] leading-snug text-ink-2"
+                        style={{ "--i": i } as React.CSSProperties}
+                      >
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_oklab,var(--accent)_10%,transparent)]">
+                          <SkillIcon spec={iconFor(s)} className="size-4" />
+                        </span>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </Reveal>
+              )}
             </div>
             {(about.interests.length > 0 || about.languages.length > 0 || about.activities.length > 0) && (
               <div className="mt-14 grid grid-cols-1 gap-10 border-t border-line pt-10 md:grid-cols-3">
@@ -193,7 +258,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
             <ol className="relative md:space-y-14">
               <TimelineRail className="left-0 md:left-[15.5rem]" />
               {experiences.map((e) => (
-                <ExperienceItem key={e.id} e={e} />
+                <ExperienceItem key={e.id} e={e} icons={pick(icons, e.tools)} />
               ))}
             </ol>
           </Section>
@@ -208,7 +273,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
               {projects.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 2) * 120}>
-                  <ProjectCard p={p} />
+                  <ProjectCard p={p} icons={pick(icons, p.tech)} />
                 </Reveal>
               ))}
             </div>
@@ -217,22 +282,7 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
 
         {show.skills && (
           <Section id="skills" title="Skills">
-            <dl className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-              {skill_groups.map((g, gi) => (
-                <Reveal key={g.id} delay={(gi % 3) * 90} className="border-t border-line pt-5">
-                  <dt className="text-sm font-semibold text-ink">{g.name}</dt>
-                  <dd className="mt-3">
-                    <ul className="flex flex-wrap gap-1.5">
-                      {g.items.map((s) => (
-                        <li key={s} className="rounded-md border border-line bg-surface px-2.5 py-1 text-[13px] text-ink-2 transition-colors duration-200 hover:border-[color-mix(in_oklab,var(--accent)_45%,var(--line))] hover:text-ink">
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  </dd>
-                </Reveal>
-              ))}
-            </dl>
+            <SkillsShowcase groups={groups} orbs={orbs} />
           </Section>
         )}
 
@@ -240,13 +290,13 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
           <Section id="education" title="Education">
             <ol className="divide-y divide-line border-y border-line">
               {education.map((e) => (
-                <li key={e.id} className="grid grid-cols-1 gap-2 py-7 md:grid-cols-[13rem_1fr] md:gap-10">
+                <li key={e.id} className="edu-row grid grid-cols-1 gap-2 py-7 md:grid-cols-[13rem_1fr_auto] md:gap-10">
                   <p className="text-sm tabular-nums text-muted">{formatRange(e.start_date, e.end_date)}</p>
                   <div>
                     <h3 className="text-lg font-semibold tracking-tight">{e.qualification}</h3>
                     <p className="mt-1 text-[15px] text-ink-2">
                       {e.institution}
-                      {e.grade && <span className="text-muted">, {e.grade}</span>}
+                      {e.grade && !cgpa(e.grade) && <span className="text-muted">, {e.grade}</span>}
                     </p>
                     {e.details.length > 0 && (
                       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink-2 marker:text-line-strong">
@@ -256,6 +306,11 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
                       </ul>
                     )}
                   </div>
+                  {cgpa(e.grade) && (
+                    <div className="mt-3 md:mt-0">
+                      <CountRing value={cgpa(e.grade)!} label={e.grade} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ol>
@@ -300,7 +355,15 @@ export function ClassicTemplate({ data, model, resumeHref, previewBanner, contac
         {show.contact && (
           <Section id="contact" title="Contact" intro={contact.intro || undefined}>
             {profile.email && (
-              <div className="mb-14">
+              <div className="relative mb-14">
+                <div aria-hidden className="flight pointer-events-none absolute -top-[13.5rem] right-0 hidden h-[120px] w-[400px] xl:block">
+                  <svg viewBox="0 0 400 120" width="400" height="120" fill="none" className="absolute inset-0 text-line-strong">
+                    <path className="flight-path" d="M10 100 C 100 100, 120 20, 210 40 S 350 110, 392 18" stroke="currentColor" strokeWidth="1.5" strokeDasharray="5 7" />
+                  </svg>
+                  <span className="plane absolute left-0 top-0 flex size-9 items-center justify-center rounded-full bg-accent text-accent-fg shadow-[0_8px_20px_-8px_var(--accent)]">
+                    <Send className="size-4" />
+                  </span>
+                </div>
                 <BigEmail email={profile.email} />
               </div>
             )}
